@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>器材檢索表</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #111827;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: #fff;
+    }
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      min-width: 120px;
+    }
+    .stat .label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .stat .value {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      cursor: pointer;
+      user-select: none;
+    }
+    tr:hover td { background: #fafafa; }
+    .empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    @media (max-width: 900px) {
+      .controls { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>器材檢索表</h1>
+      <div class="sub">支援全文搜尋、類別篩選、位置篩選、欄位排序。資料來源可直接接 Google Sheets 匯出的 CSV。</div>
+    </div>
+
+    <div class="panel">
+      <div class="controls">
+        <input id="searchInput" placeholder="搜尋類別 / 編號 / 項目 / 位置，例如：DJI、木櫃子右中、BT-M-cam" />
+        <select id="categoryFilter"><option value="">全部類別</option></select>
+        <select id="locationFilter"><option value="">全部位置</option></select>
+        <select id="sortBy">
+          <option value="編號">依編號排序</option>
+          <option value="類別">依類別排序</option>
+          <option value="位置">依位置排序</option>
+          <option value="項目">依項目排序</option>
+        </select>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="label">總筆數</div><div class="value" id="totalCount">0</div></div>
+        <div class="stat"><div class="label">目前顯示</div><div class="value" id="visibleCount">0</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-key="類別">類別</th>
+              <th data-key="編號">編號</th>
+              <th data-key="項目">項目</th>
+              <th data-key="位置">位置</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="hint">你只要把下方 <code>CSV_URL</code> 換成 Google Sheets 的 CSV 連結，推到 GitHub Pages 就能直接上線。</div>
+    </div>
+  </div>
+
+  <script>
+    // 1) 先在 Google Sheets：檔案 -> 分享 -> 發布到網路
+    // 2) 選單張工作表、格式選 CSV
+    // 3) 把連結貼到這裡
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyDwJvNpuUfpjKNtT0Mt73liuMKZia5D0TKxRDL3ozYHpHlePvm5jw01rx8djnabaGZh_rn9-O4PVH/pub?output=csv';
+
+    let rows = [];
+    let sortKey = '編號';
+    let sortAsc = true;
+
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const locationFilter = document.getElementById('locationFilter');
+    const sortBy = document.getElementById('sortBy');
+    const tableBody = document.getElementById('tableBody');
+    const totalCount = document.getElementById('totalCount');
+    const visibleCount = document.getElementById('visibleCount');
+
+    function normalizeRow(row) {
+      return {
+        類別: (row['類別'] || '').trim(),
+        編號: (row['編號'] || '').trim(),
+        項目: (row['項目'] || '').trim(),
+        位置: (row['位置'] || '').trim(),
+      };
+    }
+
+    function uniqueValues(key) {
+      return [...new Set(rows.map(r => r[key]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+    }
+
+    function fillFilters() {
+      for (const item of uniqueValues('類別')) {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        categoryFilter.appendChild(option);
+      }
+      for (const item of uniqueValues('位置')) {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        locationFilter.appendChild(option);
+      }
+    }
+
+    function getFilteredRows() {
+      const q = searchInput.value.trim().toLowerCase();
+      const category = categoryFilter.value;
+      const location = locationFilter.value;
+
+      let filtered = rows.filter(r => {
+        const text = `${r['類別']} ${r['編號']} ${r['項目']} ${r['位置']}`.toLowerCase();
+        const matchQ = !q || text.includes(q);
+        const matchCategory = !category || r['類別'] === category;
+        const matchLocation = !location || r['位置'] === location;
+        return matchQ && matchCategory && matchLocation;
+      });
+
+      filtered.sort((a, b) => {
+        const av = a[sortKey] || '';
+        const bv = b[sortKey] || '';
+        const result = av.localeCompare(bv, 'zh-Hant', { numeric: true });
+        return sortAsc ? result : -result;
+      });
+
+      return filtered;
+    }
+
+    function render() {
+      const filtered = getFilteredRows();
+      visibleCount.textContent = filtered.length;
+
+      if (!filtered.length) {
+        tableBody.innerHTML = `<tr><td class="empty" colspan="4">查無結果，換個關鍵字試試。</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = filtered.map(r => `
+        <tr>
+          <td>${escapeHtml(r['類別'])}</td>
+          <td>${escapeHtml(r['編號'])}</td>
+          <td>${escapeHtml(r['項目'])}</td>
+          <td>${escapeHtml(r['位置'])}</td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function bindEvents() {
+      searchInput.addEventListener('input', render);
+      categoryFilter.addEventListener('change', render);
+      locationFilter.addEventListener('change', render);
+      sortBy.addEventListener('change', e => {
+        sortKey = e.target.value;
+        render();
+      });
+      document.querySelectorAll('th[data-key]').forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.dataset.key;
+          if (sortKey === key) {
+            sortAsc = !sortAsc;
+          } else {
+            sortKey = key;
+            sortAsc = true;
+            sortBy.value = key;
+          }
+          render();
+        });
+      });
+    }
+
+    function loadCsv() {
+      if (!CSV_URL || CSV_URL.includes('PASTE_YOUR')) {
+        tableBody.innerHTML = `<tr><td class="empty" colspan="4">請先把 CSV_URL 換成你的 Google Sheets CSV 連結。</td></tr>`;
+        return;
+      }
+      Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          rows = results.data.map(normalizeRow).filter(r => r['編號'] || r['項目']);
+          totalCount.textContent = rows.length;
+          fillFilters();
+          render();
+        },
+        error: () => {
+          tableBody.innerHTML = `<tr><td class="empty" colspan="4">CSV 載入失敗。請檢查 Google Sheets 是否已發布為可公開讀取的 CSV。</td></tr>`;
+        }
+      });
+    }
+
+    bindEvents();
+    loadCsv();
+  </script>
+</body>
+</html>
