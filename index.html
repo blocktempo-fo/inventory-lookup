@@ -4,258 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>器材檢索表</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --accent: #111827;
-      --soft: #f3f4f6;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    .wrap {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 16px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    h1 {
-      margin: 0;
-      font-size: 32px;
-      line-height: 1.15;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 15px;
-      margin-top: 8px;
-    }
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.04);
-      margin-bottom: 18px;
-    }
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1.6fr 160px 220px;
-      gap: 12px;
-      align-items: center;
-    }
-    .search-wrap {
-      position: relative;
-    }
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      font-size: 15px;
-      pointer-events: none;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      font-size: 14px;
-      background: #fff;
-    }
-    #searchInput {
-      padding-left: 38px;
-    }
-    .stats {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-    .stat {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 14px;
-      min-width: 120px;
-    }
-    .stat .label {
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .stat .value {
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-    .category-tabs {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      margin-bottom: 8px;
-    }
-    .tab {
-      border: 1px solid var(--border);
-      background: #fff;
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-size: 14px;
-      white-space: nowrap;
-      cursor: pointer;
-      width: auto;
-      flex: 0 0 auto;
-    }
-    .tab.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-    .tab small {
-      opacity: 0.8;
-      margin-left: 4px;
-    }
-    .section {
-      margin-top: 22px;
-    }
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-    .section-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin: 0;
-    }
-    .section-meta {
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .item-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
-      display: grid;
-      gap: 8px;
-      min-height: 146px;
-    }
-    .item-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      gap: 10px;
-    }
-    .item-name {
-      margin: 0;
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-    .item-id {
-      display: inline-block;
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      background: var(--soft);
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .meta-row {
-      font-size: 14px;
-      color: #374151;
-      line-height: 1.45;
-    }
-    .meta-label {
-      color: var(--muted);
-      margin-right: 6px;
-    }
-    .empty {
-      padding: 28px;
-      text-align: center;
-      color: var(--muted);
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
-    .hint {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 10px;
-      line-height: 1.5;
-    }
-    .mode-toggle {
-      display: inline-flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .mode-btn {
-      width: auto;
-      cursor: pointer;
-    }
-    .mode-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-    @media (max-width: 980px) {
-      .toolbar {
-        grid-template-columns: 1fr;
-      }
-      .card-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      h1 { font-size: 28px; }
-    }
-    @media (max-width: 640px) {
-      .wrap { padding: 16px; }
-      .card-grid {
-        grid-template-columns: 1fr;
-      }
-      .section-title { font-size: 20px; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <div>
-        <h1>器材檢索表</h1>
-        <div class="sub">預設用類別分頁瀏覽，也保留關鍵字搜尋。適合快速找器材、看位置、查編號。</div>
-      </div>
-    </div>
+  <div class="app">
+    <!-- Header -->
+    <header class="app-header">
+      <h1>器材檢索表</h1>
+      <p class="app-subtitle">依類別或位置瀏覽器材，點擊卡片查看設備詳情與示意圖。</p>
+    </header>
 
+    <!-- Filter Panel -->
     <div class="panel">
       <div class="toolbar">
         <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input id="searchInput" placeholder="搜尋類別 / 編號 / 項目 / 位置，例如：DJI、木櫃子右中、BT-M-cam" />
+          <span class="search-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input id="searchInput" placeholder="搜尋類別 / 編號 / 項目 / 位置" />
         </div>
 
         <select id="locationFilter">
@@ -270,8 +36,9 @@
       </div>
 
       <div class="mode-toggle">
-        <button class="mode-btn active" id="groupModeBtn" type="button">分類瀏覽</button>
-        <button class="mode-btn" id="allModeBtn" type="button">全部列表</button>
+        <button class="mode-btn active" id="modeCategoryBtn" type="button">分類瀏覽</button>
+        <button class="mode-btn" id="modeLocationBtn" type="button">位置瀏覽</button>
+        <button class="mode-btn" id="modeAllBtn" type="button">全部列表</button>
       </div>
 
       <div class="stats">
@@ -279,266 +46,26 @@
         <div class="stat"><div class="label">目前顯示</div><div class="value" id="visibleCount">0</div></div>
         <div class="stat"><div class="label">類別數</div><div class="value" id="categoryCount">0</div></div>
       </div>
-
-      <div class="hint">你只要把下方 <code>CSV_URL</code> 換成 Google Sheets 的 CSV 連結，重新 commit，網站就會更新。</div>
     </div>
 
+    <!-- Content Panel -->
     <div class="panel">
-      <div class="category-tabs" id="categoryTabs"></div>
+      <div class="tab-bar" id="tabBar"></div>
       <div id="contentArea"></div>
     </div>
   </div>
 
-  <script>
-    // 1) Google Sheets -> 檔案 -> 分享 -> 發布到網路
-    // 2) 選單張工作表，格式選 CSV
-    // 3) 把連結貼到這裡
-    const CSV_URL = './data.csv';
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal" hidden role="dialog" aria-modal="true" aria-label="設備詳情">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="關閉">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-body"></div>
+    </div>
+  </div>
 
-    let rows = [];
-    let sortKey = '編號';
-    let currentCategory = '全部';
-    let currentMode = 'group';
-
-    const searchInput = document.getElementById('searchInput');
-    const locationFilter = document.getElementById('locationFilter');
-    const sortBy = document.getElementById('sortBy');
-    const totalCount = document.getElementById('totalCount');
-    const visibleCount = document.getElementById('visibleCount');
-    const categoryCount = document.getElementById('categoryCount');
-    const categoryTabs = document.getElementById('categoryTabs');
-    const contentArea = document.getElementById('contentArea');
-    const groupModeBtn = document.getElementById('groupModeBtn');
-    const allModeBtn = document.getElementById('allModeBtn');
-
-    function normalizeRow(row) {
-      return {
-        類別: String(row['類別'] || '').trim(),
-        編號: String(row['編號'] || '').trim(),
-        項目: String(row['項目'] || '').trim(),
-        位置: String(row['位置'] || '').trim(),
-      };
-    }
-
-    function getCategories() {
-      return [...new Set(rows.map(r => r['類別']).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh-Hant'));
-    }
-
-    function getLocations() {
-      return [...new Set(rows.map(r => r['位置']).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'zh-Hant'));
-    }
-
-    function fillLocationFilter() {
-      const current = locationFilter.value;
-      locationFilter.innerHTML = '<option value="">全部位置</option>';
-      for (const item of getLocations()) {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        locationFilter.appendChild(option);
-      }
-      locationFilter.value = current;
-    }
-
-    function renderCategoryTabs() {
-      const counts = countByCategory(getBaseFilteredRows());
-      const categories = ['全部', ...getCategories().filter(c => counts[c] > 0 || currentCategory === c)];
-
-      categoryTabs.innerHTML = categories.map(category => {
-        const count = category === '全部'
-          ? getBaseFilteredRows().length
-          : (counts[category] || 0);
-        return `<button type="button" class="tab ${category === currentCategory ? 'active' : ''}" data-category="${escapeHtmlAttr(category)}">${escapeHtml(category)} <small>${count}</small></button>`;
-      }).join('');
-
-      categoryTabs.querySelectorAll('.tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          currentCategory = btn.dataset.category;
-          render();
-        });
-      });
-    }
-
-    function getBaseFilteredRows() {
-      const q = searchInput.value.trim().toLowerCase();
-      const location = locationFilter.value;
-
-      return rows.filter(r => {
-        const text = `${r['類別']} ${r['編號']} ${r['項目']} ${r['位置']}`.toLowerCase();
-        const matchQ = !q || text.includes(q);
-        const matchLocation = !location || r['位置'] === location;
-        return matchQ && matchLocation;
-      });
-    }
-
-    function getCurrentRows() {
-      let filtered = getBaseFilteredRows();
-
-      if (currentCategory !== '全部') {
-        filtered = filtered.filter(r => r['類別'] === currentCategory);
-      }
-
-      filtered.sort((a, b) => {
-        const av = a[sortKey] || '';
-        const bv = b[sortKey] || '';
-        return av.localeCompare(bv, 'zh-Hant', { numeric: true });
-      });
-
-      return filtered;
-    }
-
-    function countByCategory(list) {
-      const map = {};
-      for (const row of list) {
-        const key = row['類別'] || '未分類';
-        map[key] = (map[key] || 0) + 1;
-      }
-      return map;
-    }
-
-    function groupRows(list) {
-      const map = {};
-      for (const row of list) {
-        const key = row['類別'] || '未分類';
-        if (!map[key]) map[key] = [];
-        map[key].push(row);
-      }
-      return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0], 'zh-Hant'));
-    }
-
-    function renderCards(list) {
-      if (!list.length) {
-        return `<div class="empty">查無結果，換個關鍵字或位置試試。</div>`;
-      }
-
-      return `<div class="card-grid">${list.map(row => `
-        <article class="item-card">
-          <div class="item-top">
-            <h3 class="item-name">${escapeHtml(row['項目'] || '未命名項目')}</h3>
-            <span class="item-id">${escapeHtml(row['編號'] || '未填編號')}</span>
-          </div>
-          <div class="meta-row"><span class="meta-label">類別</span>${escapeHtml(row['類別'] || '未分類')}</div>
-          <div class="meta-row"><span class="meta-label">位置</span>${escapeHtml(row['位置'] || '未填位置')}</div>
-        </article>
-      `).join('')}</div>`;
-    }
-
-    function renderContent() {
-      const currentRows = getCurrentRows();
-      visibleCount.textContent = currentRows.length;
-
-      if (currentMode === 'all') {
-        contentArea.innerHTML = `
-          <section class="section">
-            <div class="section-head">
-              <h2 class="section-title">全部列表</h2>
-              <div class="section-meta">共 ${currentRows.length} 筆</div>
-            </div>
-            ${renderCards(currentRows)}
-          </section>
-        `;
-        return;
-      }
-
-      if (currentCategory !== '全部') {
-        contentArea.innerHTML = `
-          <section class="section">
-            <div class="section-head">
-              <h2 class="section-title">${escapeHtml(currentCategory)}</h2>
-              <div class="section-meta">共 ${currentRows.length} 筆</div>
-            </div>
-            ${renderCards(currentRows)}
-          </section>
-        `;
-        return;
-      }
-
-      const grouped = groupRows(currentRows);
-      if (!grouped.length) {
-        contentArea.innerHTML = `<div class="empty">查無結果，換個關鍵字或位置試試。</div>`;
-        return;
-      }
-
-      contentArea.innerHTML = grouped.map(([category, list]) => `
-        <section class="section">
-          <div class="section-head">
-            <h2 class="section-title">${escapeHtml(category)}</h2>
-            <div class="section-meta">共 ${list.length} 筆</div>
-          </div>
-          ${renderCards(list)}
-        </section>
-      `).join('');
-    }
-
-    function render() {
-      renderCategoryTabs();
-      renderContent();
-      setModeButtons();
-    }
-
-    function setModeButtons() {
-      groupModeBtn.classList.toggle('active', currentMode === 'group');
-      allModeBtn.classList.toggle('active', currentMode === 'all');
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    function escapeHtmlAttr(str) {
-      return escapeHtml(str);
-    }
-
-    function bindEvents() {
-      searchInput.addEventListener('input', render);
-      locationFilter.addEventListener('change', render);
-      sortBy.addEventListener('change', e => {
-        sortKey = e.target.value;
-        render();
-      });
-      groupModeBtn.addEventListener('click', () => {
-        currentMode = 'group';
-        render();
-      });
-      allModeBtn.addEventListener('click', () => {
-        currentMode = 'all';
-        render();
-      });
-    }
-
-    function loadCsv() {
-      if (!CSV_URL || CSV_URL.includes('PASTE_YOUR')) {
-        contentArea.innerHTML = `<div class="empty">請先把 CSV_URL 換成你的 Google Sheets CSV 連結。</div>`;
-        return;
-      }
-
-      Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          rows = results.data
-            .map(normalizeRow)
-            .filter(r => r['編號'] || r['項目'] || r['位置'] || r['類別']);
-
-          totalCount.textContent = rows.length;
-          categoryCount.textContent = getCategories().length;
-          fillLocationFilter();
-          render();
-        },
-        error: () => {
-          contentArea.innerHTML = `<div class="empty">CSV 載入失敗。請檢查 Google Sheets 是否已發布為可公開讀取的 CSV。</div>`;
-        }
-      });
-    }
-
-    bindEvents();
-    loadCsv();
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
