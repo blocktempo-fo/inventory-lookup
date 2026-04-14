@@ -1,6 +1,21 @@
 (function () {
   'use strict';
 
+  // ── Inline SVG Assets (embedded to avoid folder upload) ──
+  const SVG_ASSETS = {
+    placeholder: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#f0f2f8"/><rect x="30" y="35" width="60" height="45" rx="4" stroke="#b0b8c8" stroke-width="2.5" fill="none"/><circle cx="45" cy="50" r="5" stroke="#b0b8c8" stroke-width="2" fill="none"/><polyline points="30,72 50,58 65,68 75,60 90,72" stroke="#b0b8c8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="60" y="100" text-anchor="middle" fill="#b0b8c8" font-family="sans-serif" font-size="11">尚無圖片</text></svg>`,
+    camera: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#e6f7f9"/><path d="M35 50h-5a3 3 0 00-3 3v22a3 3 0 003 3h60a3 3 0 003-3V53a3 3 0 00-3-3h-5l-5-8H50l-5 8z" stroke="#0891b2" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="62" r="12" stroke="#0891b2" stroke-width="2.5" fill="none"/><circle cx="60" cy="62" r="5" stroke="#0891b2" stroke-width="1.5" fill="none"/><text x="60" y="100" text-anchor="middle" fill="#0891b2" font-family="sans-serif" font-size="11">相機</text></svg>`,
+    adapter: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#eef0ff"/><rect x="30" y="45" width="25" height="30" rx="4" stroke="#6366f1" stroke-width="2.5" fill="none"/><rect x="65" y="45" width="25" height="30" rx="4" stroke="#6366f1" stroke-width="2.5" fill="none"/><line x1="55" y1="55" x2="65" y2="55" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/><line x1="55" y1="60" x2="65" y2="60" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/><line x1="55" y1="65" x2="65" y2="65" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/><text x="60" y="100" text-anchor="middle" fill="#6366f1" font-family="sans-serif" font-size="11">轉接頭</text></svg>`,
+    lighting: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#fef9ee"/><circle cx="60" cy="52" r="18" stroke="#f59e0b" stroke-width="2.5" fill="none"/><line x1="60" y1="70" x2="60" y2="80" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/><line x1="52" y1="78" x2="68" y2="78" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/><line x1="60" y1="30" x2="60" y2="26" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="52" x2="82" y2="52" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/><line x1="42" y1="52" x2="38" y2="52" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/><text x="60" y="100" text-anchor="middle" fill="#f59e0b" font-family="sans-serif" font-size="11">燈光</text></svg>`,
+    audio: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#ecfdf5"/><rect x="53" y="30" width="14" height="32" rx="7" stroke="#10b981" stroke-width="2.5" fill="none"/><path d="M42 55v3a18 18 0 0036 0v-3" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round"/><line x1="60" y1="76" x2="60" y2="84" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="84" x2="70" y2="84" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/><text x="60" y="100" text-anchor="middle" fill="#10b981" font-family="sans-serif" font-size="11">收音</text></svg>`,
+    accessory: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#f5f3ff"/><rect x="35" y="40" width="50" height="35" rx="5" stroke="#8b5cf6" stroke-width="2.5" fill="none"/><rect x="45" y="50" width="12" height="8" rx="1" stroke="#8b5cf6" stroke-width="1.5" fill="none"/><rect x="63" y="50" width="12" height="8" rx="1" stroke="#8b5cf6" stroke-width="1.5" fill="none"/><rect x="45" y="62" width="12" height="8" rx="1" stroke="#8b5cf6" stroke-width="1.5" fill="none"/><rect x="63" y="62" width="12" height="8" rx="1" stroke="#8b5cf6" stroke-width="1.5" fill="none"/><text x="60" y="100" text-anchor="middle" fill="#8b5cf6" font-family="sans-serif" font-size="11">配件</text></svg>`,
+    mount: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" fill="none"><rect width="120" height="120" rx="12" fill="#f1f5f9"/><circle cx="60" cy="35" r="6" stroke="#64748b" stroke-width="2.5" fill="none"/><line x1="60" y1="41" x2="60" y2="50" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/><line x1="60" y1="50" x2="38" y2="80" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/><line x1="60" y1="50" x2="82" y2="80" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/><line x1="60" y1="50" x2="60" y2="80" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/><line x1="32" y1="80" x2="44" y2="80" stroke="#64748b" stroke-width="2" stroke-linecap="round"/><line x1="76" y1="80" x2="88" y2="80" stroke="#64748b" stroke-width="2" stroke-linecap="round"/><line x1="54" y1="80" x2="66" y2="80" stroke="#64748b" stroke-width="2" stroke-linecap="round"/><text x="60" y="100" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="11">支架</text></svg>`,
+  };
+
+  function svgToDataUri(svg) {
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
   // ── Configuration ─────────────────────────────────
   const CONFIG = {
     csvUrl: './data.csv',
@@ -202,21 +217,22 @@
       return `${CONFIG.imageBasePath}${id}.jpg`;
     },
 
-    getFallbackUrl(item) {
-      const cat = getCategoryLabel(item['類別']);
-      return `${CONFIG.imageBasePath}categories/${cat}.svg`;
+    getCategorySvgUri(item) {
+      const label = getCategoryLabel(item['類別']);
+      const svg = SVG_ASSETS[label] || SVG_ASSETS.placeholder;
+      return svgToDataUri(svg);
     },
 
-    getPlaceholderUrl() {
-      return `${CONFIG.imageBasePath}placeholder.svg`;
+    getPlaceholderUri() {
+      return svgToDataUri(SVG_ASSETS.placeholder);
     },
 
     handleImageError(img, item) {
       if (img.dataset.fallback === 'category') {
-        img.src = this.getPlaceholderUrl();
+        img.src = this.getPlaceholderUri();
         img.dataset.fallback = 'placeholder';
       } else if (!img.dataset.fallback) {
-        img.src = this.getFallbackUrl(item);
+        img.src = this.getCategorySvgUri(item);
         img.dataset.fallback = 'category';
       }
     },
