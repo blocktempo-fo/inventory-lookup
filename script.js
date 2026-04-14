@@ -210,11 +210,56 @@
     },
   };
 
+  // ── Product Image Map (keyword → image URL) ──────
+  // Each entry: [keyword_to_match_in_項目, image_url]
+  // When an item name contains the keyword, it uses that image
+  const PRODUCT_IMAGES = [
+    ['a6400', 'https://www-cdn.djiits.com/reactor/assets/_next/static/media/sony-a6400.png'],
+    ['SONY a6400', 'https://www-cdn.djiits.com/reactor/assets/_next/static/media/sony-a6400.png'],
+    ['Osmo Pocket 3', 'https://www-cdn.djiits.com/cms/uploads/551e7d13228ed00e3486566918a183fd@374*374.png'],
+    ['DJI Action4', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
+    ['DJI Action 4', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
+    ['Wireless GO II', 'https://edge.rode.com//images/products/variants/66/rode-wigo2_hero_image_final_2-rgb_1080x1080.png'],
+    ['Wireless GO', 'https://edge.rode.com//images/products/variants/66/rode-wigo2_hero_image_final_2-rgb_1080x1080.png'],
+    ['Wireless PRO', 'https://edge.rode.com/images/page/2207/modules/8803/rode-wireless-pro-hero-three-quarter-4000x4000-rgb-1080x1080-f521e30.png'],
+    ['VideoMicro', 'https://edge.rode.com//images/page/122/modules/4116/RØDE_VideoMicro_3-QUARTER_1080x1080.png'],
+    ['INSTA 360', 'https://www-cdn.djiits.com/cms/uploads/551e7d13228ed00e3486566918a183fd@374*374.png'],
+    ['Mavic Air', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
+    ['Mini 3 Pro', 'https://www-cdn.djiits.com/cms/uploads/551e7d13228ed00e3486566918a183fd@374*374.png'],
+    ['Godox', 'https://edge.rode.com//images/page/122/modules/4116/RØDE_VideoMicro_3-QUARTER_1080x1080.png'],
+    ['SHURE', 'https://edge.rode.com/images/page/2207/modules/8803/rode-wireless-pro-hero-three-quarter-4000x4000-rgb-1080x1080-f521e30.png'],
+  ];
+
   // ── Image Resolver ────────────────────────────────
   const ImageResolver = {
+    // Find a product-specific image URL by matching item name keywords
+    getProductImageUrl(item) {
+      const name = (item['項目'] || '').toLowerCase();
+      for (const [keyword, url] of PRODUCT_IMAGES) {
+        if (name.toLowerCase().includes(keyword.toLowerCase())) {
+          return url;
+        }
+      }
+      return null;
+    },
+
+    // For card thumbnail: product image or null
+    getThumbUrl(item) {
+      return this.getProductImageUrl(item);
+    },
+
+    // For modal: try local image first, then product URL, then category SVG
     getImageUrl(item) {
       const id = sanitizeId(item['編號']);
       return `${CONFIG.imageBasePath}${id}.jpg`;
+    },
+
+    getModalImageUrl(item) {
+      // Try product URL first (more reliable than local file)
+      const productUrl = this.getProductImageUrl(item);
+      if (productUrl) return productUrl;
+      // Fall back to local image by ID
+      return this.getImageUrl(item);
     },
 
     getCategorySvgUri(item) {
@@ -318,6 +363,9 @@
       return `<div class="card-grid">${list.map((row, i) => {
         const category = row['類別'] || '未分類';
         const catColor = getCategoryColor(category);
+        const thumbSrc = ImageResolver.getThumbUrl(row);
+        const catLabel = getCategoryLabel(category);
+        const catSvg = SVG_ASSETS[catLabel] || SVG_ASSETS.placeholder;
 
         // Build extra fields for card display
         let extraHtml = '';
@@ -327,24 +375,35 @@
           extraHtml += `<div class="meta-row"><span class="status-dot" style="background:${sColor}"></span>${escapeHtml(status)}</div>`;
         }
 
+        // Determine thumbnail: product image or category SVG
+        let thumbHtml;
+        if (thumbSrc) {
+          thumbHtml = `<div class="card-thumb"><img src="${escapeHtml(thumbSrc)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=thumb-svg>${catSvg}</div>'"/></div>`;
+        } else {
+          thumbHtml = `<div class="card-thumb"><div class="thumb-svg">${catSvg}</div></div>`;
+        }
+
         return `
         <article class="item-card" data-category="${escapeHtml(category)}" data-index="${i}" role="button" tabindex="0" aria-label="查看 ${escapeHtml(row['項目'] || '')} 詳情">
-          <div class="click-hint">${Icons.chevronRight}</div>
-          <div class="item-top">
-            <h3 class="item-name">${escapeHtml(row['項目'] || '未命名項目')}</h3>
-            <span class="item-id">${escapeHtml(row['編號'] || '—')}</span>
+          ${thumbHtml}
+          <div class="card-body">
+            <div class="click-hint">${Icons.chevronRight}</div>
+            <div class="item-top">
+              <h3 class="item-name">${escapeHtml(row['項目'] || '未命名項目')}</h3>
+              <span class="item-id">${escapeHtml(row['編號'] || '—')}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-icon">${Icons.tag}</span>
+              <span class="meta-label">類別</span>
+              <span class="category-badge" style="background:${catColor}15;color:${catColor}">${escapeHtml(category)}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-icon">${Icons.mapPin}</span>
+              <span class="meta-label">位置</span>
+              ${escapeHtml(row['位置'] || '未填位置')}
+            </div>
+            ${extraHtml}
           </div>
-          <div class="meta-row">
-            <span class="meta-icon">${Icons.tag}</span>
-            <span class="meta-label">類別</span>
-            <span class="category-badge" style="background:${catColor}15;color:${catColor}">${escapeHtml(category)}</span>
-          </div>
-          <div class="meta-row">
-            <span class="meta-icon">${Icons.mapPin}</span>
-            <span class="meta-label">位置</span>
-            ${escapeHtml(row['位置'] || '未填位置')}
-          </div>
-          ${extraHtml}
         </article>`;
       }).join('')}</div>`;
     },
@@ -480,7 +539,7 @@
     render(item) {
       const category = item['類別'] || '未分類';
       const catColor = getCategoryColor(category);
-      const imgSrc = ImageResolver.getImageUrl(item);
+      const imgSrc = ImageResolver.getModalImageUrl(item);
 
       // Build field rows for modal
       const coreFields = ['類別', '位置'];
