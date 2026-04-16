@@ -215,13 +215,135 @@
   // When an item name contains the keyword, it uses that image
   // Product image mapping: [keyword_in_item_name, image_url]
   // Verified URLs from manufacturer CDNs. Add more as needed.
+  // IMPORTANT: order matters! More specific keywords must come FIRST so they win
+  // the first-match. Example: "Osmo Pocket 3 廣角鏡" must be before "Osmo Pocket 3".
   const PRODUCT_IMAGES = [
+    // ─── DJI Osmo Pocket 3 accessories (specific first) ───
+    ['Osmo Pocket 3 廣角鏡', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/829e4a8fe7ecbbe7e1eb05bd88b67e60@large.jpg'],
+    ['Osmo Pocket 3 續航手把', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/8e51cc2a15bcd08a87f04c7ffd47e850@origin.png'],
+    ['螺紋手把', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/7d58e2bd4e31f2139beef5051558c97d@large.jpg'],
+    ['Osmo Pocket 3 主機', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/35d158a1f3d1a3a48ec4cf2220cfc426@large.png'],
+    ['Osmo 迷你三腳架', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/b676ea0f85edee205678f0a2765f4b33@large.jpg'],
+    // Generic Osmo Pocket 3 fallback (collectors/cases use main-unit image)
     ['Osmo Pocket 3', 'https://www-cdn.djiits.com/cms/uploads/551e7d13228ed00e3486566918a183fd@374*374.png'],
-    ['DJI Action4', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
-    ['DJI Action 4', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
+
+    // ─── DJI Mic 3 (specific first) ───
+    ['DJI Mic 3 發射器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/5ac37a6cf8ca7e9e01c18dd9fc096fe8@large.png'],
+    ['DJI Mic 3 接收器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/bdf16877d05d8bd4cb0dc3288b674b12@large.png'],
+    ['DJI Mic 3 充電盒', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/11209b23d816b8d5aa8c37c8d0752a18@large.png'],
+    ['DJI Mic 3 收納袋', 'https://se-cdn.djiits.com/tpc/uploads/in_the_box/cover/e036a839aa86c86e24e7beac607a5485@retina_small.png'],
+    ['DJI Mic 3', 'https://www-cdn.djiits.com/cms/uploads/95795cf7512b37f2f9eb7bdec42a4404@374*374.png'],
+
+    // ─── DJI Mic 2 (specific first) ───
+    ['DJI Mic 2 發射器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/5ac1ed73f9d118c711ae83631331f53a@large.png'],
+    ['DJI Mic 2 背夾式磁鐵', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/0e5738367c9a80ba228872af59ea91ff@large.jpg'],
+    ['DJI Mic 2', 'https://www-cdn.djiits.com/cms/uploads/6e61a4668dd5cca507484a47a1260521@374*374.png'],
+
+    // ─── DJI Action 4 (specific first) ───
+    ['DJI Action4 運動相機 電池', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/40f2f11507cda738f25535a0d0565222@large.png'],
+    ['DJI Action4 運動相機 支架', 'https://se-cdn.djiits.com/tpc/uploads/in_the_box/cover/31c299b571c906d9c5c604dc48ff0cae@retina_small.png'],
+    ['DJI Action4 運動相機 電池充電盒', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/11dbf9c5a5bac586e0e9ba7836ce99bf@large.png'],
+    ['DJI Action4', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/e1b8110f65a5a3321fe487f0a1a061ac@large.png'],
+    ['DJI Action 4', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/e1b8110f65a5a3321fe487f0a1a061ac@large.png'],
+
+    // ─── DJI Mavic Air (specific-suffix first so 遙控器/電池 win) ───
+    ['mavic air 空拍機 遙控器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/1dda79da942cd54b4bc122d57becc968@large.png'],
+    ['mavic air 空拍機 電池', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/fe77fece-594e-4e27-b61d-b6228a3c1815@large.png'],
+    ['mavic air', 'https://se-cdn.djiits.com/tpc/uploads/sku/cover/beceb8fe-c7d6-41c9-9d36-e6b608c7f059@ultra.png'],
+
+    // ─── DJI other ───
+    ['三軸穩定器', 'https://www-cdn.djiits.com/dps/708e9fdda54844663d1de760ca85e0f4.jpg'],
+    ['3.5mm TRS', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/656d0756b2491fe38baf59f20f72d243@large.png'],
+
+    // ─── Sony (specific models) ───
+    // SONY a6400 battery "電池-1/2/3" - use NP-FW50 battery image
+    ['a6400 微單相機 電池', 'https://www.adorama.com/images/product/isonpfw50.jpg'],
+    ['模擬電池', 'https://www.adorama.com/images/product/isonpfw50.jpg'],
+    ['FW50原廠電池充電器', 'https://www.adorama.com/images/product/isobctrw.jpg'],
+    ['SONY原廠相機充電器', 'https://www.adorama.com/images/product/isobctrw.jpg'],
+    ['SONY 18/105', 'https://www.adorama.com/images/product/iso18105e.jpg'],
+    ['a6400', 'https://www.adorama.com/images/product/isoa6400.jpg'],
+
+    // ─── INSTA 360 ───
+    ['INSTA 360', 'https://www.evogimbals.com/cdn/shop/products/insta360-one-rs-twin-edition-insta360-none-763555.jpg?v=1649452266'],
+
+    // ─── Camera bag (generic Unsplash stock photo) ───
+    ['相機包', 'https://images.unsplash.com/photo-1581591524425-c7e0978865fc?w=400'],
+
+    // ─── TAKEWAY ───
+    ['TAKEWAY', 'https://www.adorama.com/images/product/tat1.jpg'],
+
+    // ─── Rode (specific first) ───
+    ['VideoMic Me-L', 'https://edge.rode.com//images/page/387/modules/1406/R%C3%98DE_VideoMic_Me-L_3_QUARTER_LEFT_FRONT_TOP_VIEW_1080x1080.png'],
+    ['VideoMicro', 'https://edge.rode.com//images/page/122/modules/4116/R%C3%98DE_VideoMicro_3-QUARTER_1080x1080.png'],
+    ['Rode wireless go 二代', 'https://edge.rode.com//images/products/variants/66/rode-wigo2_hero_image_final_2-rgb_1080x1080.png'],
+    ['Rode wireless go 一代', 'https://edge.rode.com/images/products/variants/65/RODE_Wireless_GO_FRONT_1080x1080.png'],
     ['Wireless GO', 'https://edge.rode.com//images/products/variants/66/rode-wigo2_hero_image_final_2-rgb_1080x1080.png'],
     ['Wireless PRO', 'https://edge.rode.com/images/page/2207/modules/8803/rode-wireless-pro-hero-three-quarter-4000x4000-rgb-1080x1080-f521e30.png'],
-    ['VideoMicro', 'https://edge.rode.com//images/page/122/modules/4116/R%C3%98DE_VideoMicro_3-QUARTER_1080x1080.png'],
+    ['Rode 指向性麥克風', 'https://edge.rode.com/images/page/127/modules/4128/R%C3%98DE_VM-NTG_3-QUARTER_FRONT_1080x1080.png'],
+    ['RODE對接彈簧線', 'https://edge.rode.com/images/page/374/modules/1339/R%C3%98DE_SC7_FRONT_1080x1080.png'],
+
+    // ─── Audio ───
+    ['MV7', 'https://products.shureweb.eu/shure_product_db/product_main_images/files/6db/7d8/5a-/original/e4919ed262813ba35314ce94a1bb7414.png'],
+    ['夾式麥克風', 'https://edge.rode.com/images/products/variants/60/R%C3%98DE_LAV_GO_KIT_BLACK_1080x1080.png'],
+    ['AG06', 'https://europe.yamaha.com/files/thumbnail_ag06_tcm113-2300637.jpg'],
+    ['ZOOM H7', 'https://zoomcorp.com/media/original_images/H6AB_wShadow2.png.768x0_q60.png'],
+
+    // ─── Adapters / hubs ───
+    ['UGREEN', 'https://eu.ugreen.com/cdn/shop/files/ugreen-revodok-105-usb-c-hub-5-in-1-multiport-adapter-4k-hdmi-386804_grande.png?v=1731643871'],
+    ['HDMI to USBC 轉接', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4480/4480802cv11d.jpg'],
+
+    // ─── Lighting (Best Buy CDN — reliable, may not be exact model) ───
+    ['環形手機支架補光燈', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6424/6424124cv11d.jpg'],
+    ['環形補光燈', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6424/6424124cv11d.jpg'],
+    ['LED小平板補光燈', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6261/6261178cv11d.jpg'],
+    ['方形小補光燈', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6261/6261178cv11d.jpg'],
+    ['補光燈', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6500/6500059cv11d.jpg'],
+
+    // ─── Mounts / Tripods / Stands ───
+    ['Cayer', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5802/5802915cv11d.jpg'],
+    ['JIE yang', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5802/5802915cv11d.jpg'],
+    ['油壓三腳架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5802/5802915cv11d.jpg'],
+    ['燈架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6407/6407987cv11d.jpg'],
+    ['桌上型', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9235/9235038cv11d.jpg'],
+    ['桌上型手機支架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9235/9235038cv11d.jpg'],
+    ['桌上型小三腳架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9235/9235038cv11d.jpg'],
+    ['兔籠', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6483/6483432cv11d.jpg'],
+    ['手機支架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9235/9235038cv11d.jpg'],
+    ['手機平板支架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9235/9235038cv11d.jpg'],
+    ['看板展示架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6407/6407987cv11d.jpg'],
+    ['露營燈架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6407/6407987cv11d.jpg'],
+    ['三腳架的輪座', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5802/5802915cv11d.jpg'],
+    ['POLYWELL', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/9235/9235038cv11d.jpg'],
+    ['基本款腳架', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5802/5802915cv11d.jpg'],
+
+    // ─── Memory Cards (Best Buy CDN) ───
+    ['SanDisk 1TB', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6348/6348584cv11d.jpg'],
+    ['SanDisk 512G SDXC', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6293/6293605cv11d.jpg'],
+    ['SanDisk 128G SDXC', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6293/6293605cv11d.jpg'],
+    ['SanDisk 256G microSD', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6290/6290820cv11d.jpg'],
+    ['SONY 64G SDXC', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6393/6393942cv11d.jpg'],
+    ['microSD', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/5482/5482501cv11d.jpg'],
+    ['SDXC', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6293/6293605cv11d.jpg'],
+
+    // ─── Presenters / Accessories ───
+    ['R500', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6477/6477412cv11d.jpg'],
+    ['簡報筆', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6477/6477412cv11d.jpg'],
+    ['簡報遙控器', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6477/6477412cv11d.jpg'],
+    ['讀卡機', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6488/6488170cv11d.jpg'],
+
+    // ─── Audio extras ───
+    ['SONY 錄音筆', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6396/6396007cv11d.jpg'],
+    ['XLR音源線', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6549/6549056cv11d.jpg'],
+    ['金頭音源線', 'https://edge.rode.com/images/page/370/modules/1323/R%C3%98DE_Stereo_VideoMic_X_SC2_1080x1080.png'],
+    ['手持麥轉接套件', 'https://edge.rode.com/images/products/variants/358/RODE_Wireless_GO_HANDLE_WITH_POPSHIELD_FRONT_RGB-2000x2000-724898e.png'],
+
+    // ─── Cables ───
+    ['編織HDMI', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6554/6554774cv11d.jpg'],
+    ['紅頭DP', 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6461/6461273cv11d.jpg'],
+
+    // ─── Apple TV (no category in CSV) ───
+    ['APPLE TV', 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/apple-tv-4k-hero-select-202210?wid=960&hei=600&fmt=p-jpg&qlt=95&.v=1664912661535'],
   ];
 
   // ── Image Resolver ────────────────────────────────
