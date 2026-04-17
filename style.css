@@ -336,25 +336,32 @@ select {
 .item-card[data-category="配件"] { border-left-color: var(--cat-accessory); }
 .item-card[data-category="支架"] { border-left-color: var(--cat-mount); }
 
-/* Card Thumbnail */
+/* Card Thumbnail — small uniform square, image fully visible (not cropped) */
 .card-thumb {
-  width: 90px;
-  min-height: 90px;
+  width: 56px;
+  height: 56px;
   flex-shrink: 0;
   background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  margin: 12px 0 12px 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  align-self: flex-start;
 }
 .card-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  padding: 4px;
+  box-sizing: border-box;
 }
 .card-thumb .thumb-svg {
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   opacity: 0.5;
 }
 
@@ -433,6 +440,60 @@ select {
   transition: opacity var(--transition-fast);
 }
 .item-card:hover .click-hint {
+  opacity: 1;
+}
+
+/* ── Location Map ─────────────────────────── */
+.location-map-wrap {
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border-light);
+  background: #f5f0eb;
+}
+.location-map-container {
+  position: relative;
+  width: 100%;
+}
+.location-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.map-hotspot {
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+}
+.map-hotspot:hover {
+  border-color: var(--spot-color, var(--color-accent));
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--spot-color) 25%, transparent);
+  transform: scale(1.03);
+}
+.map-hotspot:active {
+  transform: scale(0.98);
+}
+.map-hotspot-label {
+  font-size: 0;
+  opacity: 0;
+  transition: all var(--transition-fast);
+  background: var(--spot-color, var(--color-accent));
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.map-hotspot:hover .map-hotspot-label {
+  font-size: 11px;
   opacity: 1;
 }
 
@@ -651,12 +712,13 @@ select {
     gap: 10px;
   }
   .card-thumb {
-    width: 72px;
-    min-height: 72px;
+    width: 48px;
+    height: 48px;
+    margin: 10px 0 10px 10px;
   }
   .card-thumb .thumb-svg {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
   }
   .card-body {
     padding: 10px 12px;

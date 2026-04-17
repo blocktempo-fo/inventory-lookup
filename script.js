@@ -79,6 +79,7 @@
     modeCategoryBtn: $('#modeCategoryBtn'),
     modeLocationBtn: $('#modeLocationBtn'),
     modeAllBtn: $('#modeAllBtn'),
+    locationMap: $('#locationMap'),
   };
 
   // ── Utilities ─────────────────────────────────────
@@ -215,13 +216,137 @@
   // When an item name contains the keyword, it uses that image
   // Product image mapping: [keyword_in_item_name, image_url]
   // Verified URLs from manufacturer CDNs. Add more as needed.
+  // IMPORTANT: order matters! More specific keywords must come FIRST so they win
+  // the first-match. Example: "Osmo Pocket 3 廣角鏡" must be before "Osmo Pocket 3".
   const PRODUCT_IMAGES = [
+    // ─── DJI Osmo Pocket 3 accessories (specific first) ───
+    ['Osmo Pocket 3 廣角鏡', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/829e4a8fe7ecbbe7e1eb05bd88b67e60@large.jpg'],
+    ['Osmo Pocket 3 續航手把', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/8e51cc2a15bcd08a87f04c7ffd47e850@origin.png'],
+    ['螺紋手把', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/7d58e2bd4e31f2139beef5051558c97d@large.jpg'],
+    ['Osmo Pocket 3 主機', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/35d158a1f3d1a3a48ec4cf2220cfc426@large.png'],
+    ['Osmo 迷你三腳架', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/b676ea0f85edee205678f0a2765f4b33@large.jpg'],
+    // Generic Osmo Pocket 3 fallback (collectors/cases use main-unit image)
     ['Osmo Pocket 3', 'https://www-cdn.djiits.com/cms/uploads/551e7d13228ed00e3486566918a183fd@374*374.png'],
-    ['DJI Action4', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
-    ['DJI Action 4', 'https://www-cdn.djiits.com/cms/uploads/fd525dd9cd6a4dec4c3ae81ebf35d8af@374*374.png'],
+
+    // ─── DJI Mic 3 (specific first) ───
+    ['DJI Mic 3 發射器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/5ac37a6cf8ca7e9e01c18dd9fc096fe8@large.png'],
+    ['DJI Mic 3 接收器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/bdf16877d05d8bd4cb0dc3288b674b12@large.png'],
+    ['DJI Mic 3 充電盒', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/11209b23d816b8d5aa8c37c8d0752a18@large.png'],
+    ['DJI Mic 3 收納袋', 'https://se-cdn.djiits.com/tpc/uploads/in_the_box/cover/e036a839aa86c86e24e7beac607a5485@retina_small.png'],
+    ['DJI Mic 3', 'https://www-cdn.djiits.com/cms/uploads/95795cf7512b37f2f9eb7bdec42a4404@374*374.png'],
+
+    // ─── DJI Mic 2 (specific first) ───
+    ['DJI Mic 2 發射器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/5ac1ed73f9d118c711ae83631331f53a@large.png'],
+    ['DJI Mic 2 背夾式磁鐵', 'https://se-cdn.djiits.com/tpc/uploads/photo/image/0e5738367c9a80ba228872af59ea91ff@large.jpg'],
+    ['DJI Mic 2', 'https://www-cdn.djiits.com/cms/uploads/6e61a4668dd5cca507484a47a1260521@374*374.png'],
+
+    // ─── DJI Action 4 (specific first) ───
+    ['DJI Action4 運動相機 電池', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/40f2f11507cda738f25535a0d0565222@large.png'],
+    ['DJI Action4 運動相機 支架', 'https://se-cdn.djiits.com/tpc/uploads/in_the_box/cover/31c299b571c906d9c5c604dc48ff0cae@retina_small.png'],
+    ['DJI Action4 運動相機 電池充電盒', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/11dbf9c5a5bac586e0e9ba7836ce99bf@large.png'],
+    ['DJI Action4', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/e1b8110f65a5a3321fe487f0a1a061ac@large.png'],
+    ['DJI Action 4', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/e1b8110f65a5a3321fe487f0a1a061ac@large.png'],
+
+    // ─── DJI Mavic Air (specific-suffix first so 遙控器/電池 win) ───
+    ['mavic air 空拍機 遙控器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/1dda79da942cd54b4bc122d57becc968@large.png'],
+    ['mavic air 空拍機 電池', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/fe77fece-594e-4e27-b61d-b6228a3c1815@large.png'],
+    ['mavic air', 'https://se-cdn.djiits.com/tpc/uploads/sku/cover/beceb8fe-c7d6-41c9-9d36-e6b608c7f059@ultra.png'],
+
+    // ─── DJI other ───
+    ['三軸穩定器', 'https://www-cdn.djiits.com/dps/708e9fdda54844663d1de760ca85e0f4.jpg'],
+    ['3.5mm TRS', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/656d0756b2491fe38baf59f20f72d243@large.png'],
+
+    // ─── Sony (specific models) ───
+    // SONY a6400 battery "電池-1/2/3" - use NP-FW50 battery image
+    ['a6400 微單相機 電池', 'https://www.adorama.com/images/product/isonpfw50.jpg'],
+    ['模擬電池', 'https://www.adorama.com/images/product/isonpfw50.jpg'],
+    ['FW50原廠電池充電器', 'https://www.adorama.com/images/product/isobctrw.jpg'],
+    ['SONY原廠相機充電器', 'https://www.adorama.com/images/product/isobctrw.jpg'],
+    ['SONY 18/105', 'https://www.adorama.com/images/product/iso18105e.jpg'],
+    ['a6400', 'https://www.adorama.com/images/product/isoa6400.jpg'],
+
+    // ─── INSTA 360 ───
+    ['INSTA 360', 'https://www.evogimbals.com/cdn/shop/products/insta360-one-rs-twin-edition-insta360-none-763555.jpg?v=1649452266'],
+
+    // ─── 相機包 — 待實物拍攝後補上 ───
+    // 暫時不設圖，讓它 fallback 到類別 SVG
+
+    // ─── TAKEWAY ───
+    ['TAKEWAY', 'https://www.adorama.com/images/product/tat1.jpg'],
+
+    // ─── Rode (specific first) ───
+    ['VideoMic Me-L', 'https://edge.rode.com//images/page/387/modules/1406/R%C3%98DE_VideoMic_Me-L_3_QUARTER_LEFT_FRONT_TOP_VIEW_1080x1080.png'],
+    ['VideoMicro', 'https://edge.rode.com//images/page/122/modules/4116/R%C3%98DE_VideoMicro_3-QUARTER_1080x1080.png'],
+    ['Rode wireless go 二代', 'https://edge.rode.com//images/products/variants/66/rode-wigo2_hero_image_final_2-rgb_1080x1080.png'],
+    ['Rode wireless go 一代', 'https://edge.rode.com/images/products/variants/65/RODE_Wireless_GO_FRONT_1080x1080.png'],
     ['Wireless GO', 'https://edge.rode.com//images/products/variants/66/rode-wigo2_hero_image_final_2-rgb_1080x1080.png'],
     ['Wireless PRO', 'https://edge.rode.com/images/page/2207/modules/8803/rode-wireless-pro-hero-three-quarter-4000x4000-rgb-1080x1080-f521e30.png'],
-    ['VideoMicro', 'https://edge.rode.com//images/page/122/modules/4116/R%C3%98DE_VideoMicro_3-QUARTER_1080x1080.png'],
+    ['Rode 指向性麥克風', 'https://edge.rode.com/images/page/127/modules/4128/R%C3%98DE_VM-NTG_3-QUARTER_FRONT_1080x1080.png'],
+    ['RODE對接彈簧線', 'https://edge.rode.com/images/page/374/modules/1339/R%C3%98DE_SC7_FRONT_1080x1080.png'],
+
+    // ─── Audio ───
+    ['MV7', 'https://products.shureweb.eu/shure_product_db/product_main_images/files/6db/7d8/5a-/original/e4919ed262813ba35314ce94a1bb7414.png'],
+    ['夾式麥克風', 'https://edge.rode.com/images/products/variants/60/R%C3%98DE_LAV_GO_KIT_BLACK_1080x1080.png'],
+    ['AG06', 'https://europe.yamaha.com/files/thumbnail_ag06_tcm113-2300637.jpg'],
+    ['ZOOM H7', 'https://zoomcorp.com/media/original_images/H6AB_wShadow2.png.768x0_q60.png'],
+
+    // ─── Adapters / hubs ───
+    ['UGREEN', 'https://eu.ugreen.com/cdn/shop/files/ugreen-revodok-105-usb-c-hub-5-in-1-multiport-adapter-4k-hdmi-386804_grande.png?v=1731643871'],
+    ['HDMI to USBC 轉接', 'https://www.wcs-worldwide.com/cdn/shop/products/UgreenHDMI2USBC_5.jpg?v=1614943141'],
+
+    // ─── Lighting (Google 搜尋正確產品圖) ───
+    ['環形手機支架補光燈', 'https://neewer.com/cdn/shop/files/10103010_1945409a-b2d0-41c4-bc39-47e57d5e95e4.jpg?v=1732017639'],
+    ['攝力派 大型環形補光燈', 'https://neewer.com/cdn/shop/files/10103010_1945409a-b2d0-41c4-bc39-47e57d5e95e4.jpg?v=1732017639'],
+    ['神牛方形小補光燈', 'https://nelsonphotoandvideo.com/cdn/shop/files/godox-rgb-mini-creative-m1-on-camera-video-led-light-743324.png?v=1711596352'],
+    ['VLJIM 方形小補光燈', 'https://mojocameras.com/cdn/shop/files/1599736829_1585031.jpg?v=1716416989'],
+    ['VLJIM LED小平板補光燈', 'https://www.ulanzi.com/cdn/shop/products/22.jpg?v=1689124680'],
+    ['神牛Godox SL60W', 'https://www.godox.com/static/upload/image/20220617/1655454795145867.jpg'],
+
+    // ─── Mounts / Tripods / Stands (正確品牌型號) ───
+    ['LINO手機通用金屬兔籠', 'https://www.ulanzi.com/cdn/shop/products/1_e5247a6d-424c-4d7f-a7e3-adff7576ce86.jpg?v=1638586155'],
+    ['兔籠', 'https://www.ulanzi.com/cdn/shop/products/1_e5247a6d-424c-4d7f-a7e3-adff7576ce86.jpg?v=1638586155'],
+    ['Cayer卡宴油壓三腳架', 'https://cayerfoto.com/cdn/shop/files/AF2451H6.jpg'],
+    ['JIE yang 捷洋三腳架', 'https://ambitful.shop/cdn/shop/products/HTB1NQg.JpXXXXbBXpXXq6xXFXXX3.jpg?v=1670296584'],
+    ['Raymii桌上型手機支架', 'https://shoplineimg.com/5a4d78b3080f06964f003689/60e2cfebd019860026fb1076/2000x.png'],
+    ['Raymii Lsa-40-b 手機平板支架', 'https://shoplineimg.com/5a4d78b3080f06964f003689/611b9495bf5d87003bf967d7/2000x.png'],
+    ['基本款燈架', 'https://neewer.com/cdn/shop/files/10100219_grande.jpg?v=1735638000'],
+    ['露營燈架', 'https://www.neshtary.com/cdn/shop/files/H30d6a3ba7d2e4ce7bb34e9705734ef5fK.png_960x960_a4f80e9d-dd9a-4890-8b7d-9e60d8b5b84b.webp?v=1747514260'],
+    ['桌上型小三腳架', 'https://avshutter.com/cdn/shop/files/SmallRig-Mini-Tripod-for-Camera-Updated-Desktop-Tabletop-Tripod-with-Arca-Type-Compatible-QR-Plate-360_c179a1af-742e-4e7c-8c51-73508b20fe21.jpg?v=1712671464'],
+    ['三腳架的輪座', 'https://neewer.com/cdn/shop/files/10104255_grande.jpg?v=1735293059'],
+    ['基本款腳架', 'https://neewer.com/cdn/shop/products/10089015.jpg'],
+    ['看板展示架', 'https://neewer.com/cdn/shop/files/10100219_grande.jpg?v=1735638000'],
+
+    // ─── Memory Cards (正確品牌圖) ───
+    ['SanDisk 1TB', 'https://www.glazerscamera.com/cdn/shop/files/1031_01_Hero.png?v=1701369168'],
+    ['SanDisk 512G SDXC', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-pro-uhs-i-sd/gallery/200mbs/extreme-pro-uhs-i-sd-100mbs-32gb-front.png'],
+    ['SanDisk 128G SDXC', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-pro-uhs-i-sd/gallery/200mbs/extreme-pro-uhs-i-sd-100mbs-32gb-front.png'],
+    ['SanDisk 256G microSD', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-uhs-i-microsd/extreme-uhs-i-microsd-32gb.png'],
+    ['SONY 64G SDXC', 'https://retinapix.com/cdn/shop/files/SF-GSeriesUHS-IISD64GBMemoryCard.webp?v=1727764622'],
+    ['Transcend', 'https://www.thetedstore.com/cdn/shop/files/909730.jpg?v=1748295793'],
+    ['ADATA', 'https://us-shop.adata.com/cdn/shop/files/microCARD_Premier-UHS-I-CL10_A1_PD_2000x2000_128GB.jpg?v=1739491421'],
+    ['microSD', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-uhs-i-microsd/extreme-uhs-i-microsd-32gb.png'],
+    ['SDXC', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-pro-uhs-i-sd/gallery/200mbs/extreme-pro-uhs-i-sd-100mbs-32gb-front.png'],
+
+    // ─── Presenters / Accessories (正確產品) ───
+    ['R500', 'https://resource.logitech.com/w_544,h_466,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/presenters/r500s/gallery/r500s-gallery-1.png'],
+    ['Asing A10', 'https://asingshop.com/cdn/shop/files/A10_1.jpg?v=1742544932'],
+    ['簡報筆', 'https://asingshop.com/cdn/shop/files/A10_1.jpg?v=1742544932'],
+    ['簡報遙控器', 'https://resource.logitech.com/w_544,h_466,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/presenters/r500s/gallery/r500s-gallery-1.png'],
+    ['綠聯USB簡易讀卡機', 'https://us.ugreen.com/cdn/shop/products/ugreen-4-in-1-usb-30-sdtf-card-reader-215966_grande.png?v=1692790949'],
+    // E-BOOK讀卡機 — 待補實物照片
+
+    // ─── Audio extras (正確產品) ───
+    ['SONY 錄音筆', 'https://helpguide.sony.net/icd/u57/v1/en2/contents/image/ICD-UX570_UX570F_UX575F_ill_COV_E.png'],
+    ['XLR音源線', 'https://edge.rode.com//images/products/variants/73/rode-xlr-coil-with-tag-hero-3840x2160-rgb-1080x1080-51b303e.png'],
+    ['金頭音源線', 'https://starlite.com.gh/cdn/shop/products/ugreen-3.5mm-maleto-3.5mm-male-10728-11_52a8c247-3293-4d6b-833d-4ebdfe01d165.jpg?crop=center&height=1000&v=1606175588&width=1000'],
+    ['手持麥轉接套件', 'https://edge.rode.com/images/products/variants/358/RODE_Wireless_GO_HANDLE_WITH_POPSHIELD_FRONT_RGB-2000x2000-724898e.png'],
+
+    // ─── Cables ───
+    ['編織HDMI', 'https://jgsuperstore.com/cdn/shop/products/A_980ecbfe-2ecc-4e49-b985-5cc186ec9812.jpg?v=1662775548'],
+    ['紅頭DP', 'https://m.media-amazon.com/images/I/71vvR7ZDUnL._AC_SL1500_.jpg'],
+
+    // ─── Apple TV ───
+    ['APPLE TV', 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/apple-tv-4k-hero-select-202210?wid=960&hei=600&fmt=p-jpg&qlt=95&.v=1664912661535'],
   ];
 
   // ── Image Resolver ────────────────────────────────
@@ -611,8 +736,64 @@
     },
   };
 
+  // ── Location Map ──────────────────────────────────
+  const LocationMap = {
+    initialized: false,
+
+    // Render the interactive SVG map into the #locationMap element
+    init() {
+      if (this.initialized) return;
+      this.initialized = true;
+
+      // Each area: [位置名稱, x, y, width, height, color, sublabel]
+      const areas = [
+        { loc: '木櫃子左上', x: 123, y: 90, w: 86, h: 56, color: '#10b981', sub: '配件 / 記憶卡' },
+        { loc: '木櫃子右上', x: 221, y: 90, w: 86, h: 56, color: '#f59e0b', sub: '收音 / 麥克風' },
+        { loc: '木櫃子右中', x: 221, y: 154, w: 86, h: 56, color: '#0891b2', sub: '相機 / DJI 全套' },
+        { loc: '大推車（中）', x: 390, y: 100, w: 130, h: 60, color: '#8b5cf6', sub: '三腳架 / 燈架' },
+        { loc: '大推車（下）', x: 390, y: 225, w: 130, h: 65, color: '#64748b', sub: '油壓腳架 / 兔籠' },
+        { loc: '小推車', x: 560, y: 155, w: 100, h: 140, color: '#ec4899', sub: '補光燈 / Godox' },
+        { loc: '洞洞板', x: 620, y: 55, w: 240, h: 220, color: '#6366f1', sub: '轉接頭 / 線材' },
+        { loc: '地上', x: 640, y: 320, w: 210, h: 170, color: '#94a3b8', sub: '環形燈 / 展示架' },
+      ];
+
+      // Build clickable overlay areas on the SVG
+      const overlays = areas.map(a => {
+        return `<div class="map-hotspot" data-location="${escapeHtml(a.loc)}" style="left:${a.x/9}%;top:${a.y/6}%;width:${a.w/9}%;height:${a.h/6}%;--spot-color:${a.color}" title="點擊查看「${a.loc}」的設備">
+          <span class="map-hotspot-label">${escapeHtml(a.loc)}</span>
+        </div>`;
+      }).join('');
+
+      dom.locationMap.innerHTML = `
+        <div class="location-map-container">
+          <img src="./location-map.svg" alt="器材室收納位置圖" class="location-map" />
+          ${overlays}
+        </div>`;
+
+      // Bind clicks: click area → switch to that location tab
+      dom.locationMap.querySelectorAll('.map-hotspot').forEach(el => {
+        el.addEventListener('click', () => {
+          const loc = el.dataset.location;
+          state.currentMode = 'location';
+          state.currentTab = loc;
+          render();
+          // Scroll to the content
+          dom.contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    },
+
+    // Show or hide based on current mode
+    update() {
+      const show = state.currentMode === 'location';
+      dom.locationMap.hidden = !show;
+      if (show) this.init();
+    },
+  };
+
   // ── Render Orchestrator ───────────────────────────
   function render() {
+    LocationMap.update();
     Renderer.renderTabs();
     Renderer.renderContent();
     updateModeButtons();
