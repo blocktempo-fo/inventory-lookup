@@ -884,4 +884,7 @@
   }
 
   init();
+
+  // Expose minimal API for borrow system extension (borrow.js)
+  window.__inventoryApp = { state, CONFIG, Modal, Renderer, FilterEngine, render, escapeHtml, dom };
 })();
