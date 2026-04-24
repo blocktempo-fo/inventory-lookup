@@ -318,17 +318,15 @@
         });
       },
 
-      open(item, loanId) {
+      open(item) {
         if (!this.el) return;
         this.currentItem = item;
-        this.currentLoanId = loanId;
 
         const summary = this.el.querySelector('#returnItemSummary');
         summary.innerHTML = `
           <div class="borrow-summary-row"><span class="borrow-label">項目</span><span>${app.escapeHtml(item['項目'] || '')}</span></div>
           <div class="borrow-summary-row"><span class="borrow-label">編號</span><span class="mono">${app.escapeHtml(item['編號'] || '')}</span></div>
-          <div class="borrow-summary-row"><span class="borrow-label">借用人</span><span>${app.escapeHtml(item['借用人'] || '')}</span></div>
-          <div class="borrow-summary-row"><span class="borrow-label">借用單號</span><span class="mono">${app.escapeHtml(loanId || '')}</span></div>`;
+          <div class="borrow-summary-row"><span class="borrow-label">借用人</span><span>${app.escapeHtml(item['借用人'] || '')}</span></div>`;
 
         this.el.querySelector('#returnForm').reset();
         this.el.querySelector('#returnResult').hidden = true;
@@ -364,7 +362,7 @@
         const allOk = appearance && func && accessories && storage;
 
         const data = {
-          loan_id: this.currentLoanId,
+          item_id: (this.currentItem['編號'] || '').trim(),
           checker: '管理者',
           appearance_ok: appearance,
           function_ok: func,
@@ -454,9 +452,7 @@
 
           if (isAdmin) {
             area.querySelector('.btn-return-action').addEventListener('click', () => {
-              // 嘗試從 item 取得 loan_id，或用空值讓後端查
-              const loanId = item['loan_id'] || '';
-              ReturnModal.open(item, loanId);
+              ReturnModal.open(item);
             });
           }
         } else if (status === '維修中') {
