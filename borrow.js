@@ -549,6 +549,28 @@
       };
     }
 
+    // ═══ 跨分頁同步 ═══════════════════════════════════
+    function setupCrossTabSync() {
+      // 1. 當另一個分頁更新 localStorage，自動重新套用並渲染
+      window.addEventListener('storage', (e) => {
+        if (e.key === OptimisticCache.KEY) {
+          OptimisticCache.apply();
+          app.render();
+        }
+      });
+
+      // 2. 切回此分頁時，從後端拿最新狀態
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          // 先套用 localStorage（可能被另一個分頁更新了）
+          OptimisticCache.apply();
+          app.render();
+          // 再從後端拉最新資料
+          fetchLiveStatus();
+        }
+      });
+    }
+
     // ═══ 初始化 ═══════════════════════════════════════
     function init() {
       // 套用快取
@@ -562,6 +584,9 @@
       ReturnModal.init();
       injectBorrowButton();
       setupAdminMode();
+
+      // 跨分頁同步
+      setupCrossTabSync();
 
       // 重新渲染以套用快取
       app.render();
