@@ -503,6 +503,34 @@
       }
     }
 
+    // ═══ 即時同步狀態（不等 CSV 30 分鐘同步）═══════════
+    async function fetchLiveStatus() {
+      if (!APPS_SCRIPT_URL) return;
+      try {
+        const resp = await fetch(APPS_SCRIPT_URL + '?action=active_loans');
+        const data = await resp.json();
+        if (!data.success || !data.loans) return;
+
+        // 把所有借出中的 loan 套用到 state.rows
+        for (const loan of data.loans) {
+          const itemId = (loan['編號'] || '').trim();
+          if (!itemId) continue;
+          for (const row of app.state.rows) {
+            if ((row['編號'] || '').trim() === itemId) {
+              row['狀態'] = '借出中';
+              row['借用人'] = loan['借用人姓名'] || '';
+              row['借出日期'] = loan['借出日期'] || '';
+              row['預計歸還日'] = loan['預計歸還日'] || '';
+              break;
+            }
+          }
+        }
+        app.render();
+      } catch (e) {
+        // 靜默失敗，用 CSV 資料就好
+      }
+    }
+
     // ═══ 在 render 後套用 optimistic cache ═══════════
     function patchRender() {
       const originalRender = app.render;
@@ -528,6 +556,9 @@
 
       // 重新渲染以套用快取
       app.render();
+
+      // 從 Apps Script 拿即時借用狀態（不依賴 CSV 同步延遲）
+      fetchLiveStatus();
     }
 
     init();
