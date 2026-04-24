@@ -120,10 +120,6 @@
                   <input type="text" id="bf_dept" required placeholder="例如：編輯部" />
                 </div>
                 <div class="form-group">
-                  <label for="bf_contact">聯絡方式 <span class="required">*</span></label>
-                  <input type="text" id="bf_contact" required placeholder="Slack / Line / 手機" />
-                </div>
-                <div class="form-group">
                   <label for="bf_due">預計歸還日期 <span class="required">*</span></label>
                   <input type="date" id="bf_due" required />
                 </div>
@@ -210,7 +206,7 @@
           location: item['位置'] || '',
           borrower_name: this.el.querySelector('#bf_name').value.trim(),
           department: this.el.querySelector('#bf_dept').value.trim(),
-          contact: this.el.querySelector('#bf_contact').value.trim(),
+          contact: '',
           due_date: this.el.querySelector('#bf_due').value,
           purpose: this.el.querySelector('#bf_purpose').value.trim(),
           notes: this.el.querySelector('#bf_notes').value.trim(),
