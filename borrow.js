@@ -263,10 +263,6 @@
               <h2 class="borrow-form-title return-title">歸還檢核</h2>
               <div id="returnItemSummary" class="borrow-item-summary"></div>
               <form id="returnForm" class="borrow-form">
-                <div class="form-group">
-                  <label for="rf_checker">檢查人 <span class="required">*</span></label>
-                  <input type="text" id="rf_checker" required placeholder="管理者姓名" />
-                </div>
                 <div class="form-group check-group">
                   <label>外觀正常</label>
                   <div class="radio-row">
@@ -369,7 +365,7 @@
 
         const data = {
           loan_id: this.currentLoanId,
-          checker: this.el.querySelector('#rf_checker').value.trim(),
+          checker: '管理者',
           appearance_ok: appearance,
           function_ok: func,
           accessories_ok: accessories,
