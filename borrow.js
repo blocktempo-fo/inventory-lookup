@@ -205,7 +205,6 @@
           location: item['位置'] || '',
           borrower_name: this.el.querySelector('#bf_name').value.trim(),
           department: this.el.querySelector('#bf_dept').value.trim(),
-          contact: '',
           due_date: this.el.querySelector('#bf_due').value,
           purpose: this.el.querySelector('#bf_purpose').value.trim(),
           notes: this.el.querySelector('#bf_notes').value.trim(),
