@@ -452,8 +452,86 @@ select {
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--color-border-light);
-  background: #f5f0eb;
+  background: #fff;
 }
+
+/* Banner above map */
+.loc-banner {
+  background: linear-gradient(90deg, #ecfdf5 0%, #d1fae5 100%);
+  border-bottom: 1px solid #a7f3d0;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #065f46;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.loc-banner-icon { font-size: 14px; }
+
+/* Bottom list (Plan C) */
+.loc-list {
+  padding: 14px 14px 8px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+.loc-list-title {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.loc-list-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 4px;
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+}
+.loc-list-row:last-child { border-bottom: none; }
+.loc-list-row:hover { background: #f9fafb; }
+.loc-list-row:active { background: #f3f4f6; }
+.loc-list-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+.loc-list-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+.loc-list-count {
+  font-size: 13px;
+  color: #6b7280;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+.loc-list-arrow {
+  display: inline-flex;
+  color: #9ca3af;
+  width: 18px;
+  height: 18px;
+}
+.loc-list-arrow svg { width: 18px; height: 18px; }
+
+@media (max-width: 600px) {
+  .loc-list-name { font-size: 16px; }
+  .loc-list-count { font-size: 14px; }
+  .loc-list-row { padding: 14px 4px; }
+}
+
 .location-map-container {
   position: relative;
   width: 100%;

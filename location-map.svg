@@ -1,219 +1,208 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="-apple-system, 'PingFang TC', 'Noto Sans TC', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="-apple-system, 'PingFang TC', 'Noto Sans TC', sans-serif">
   <defs>
-    <pattern id="floor" width="40" height="40" patternUnits="userSpaceOnUse">
-      <rect width="40" height="40" fill="#f5f0eb"/>
-      <rect x="0" y="0" width="20" height="20" fill="#efe9e3" rx="1"/>
-      <rect x="20" y="20" width="20" height="20" fill="#efe9e3" rx="1"/>
-    </pattern>
     <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e8e4e0"/>
-      <stop offset="100%" stop-color="#d4d0cc"/>
+      <stop offset="0%" stop-color="#e7f5ee"/>
+      <stop offset="60%" stop-color="#d8efe1"/>
+      <stop offset="100%" stop-color="#c8e6d3"/>
     </linearGradient>
-    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
-      <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15"/>
+
+    <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8dcc4"/>
+      <stop offset="100%" stop-color="#d6c5a3"/>
+    </linearGradient>
+    <pattern id="planks" x="0" y="0" width="180" height="40" patternUnits="userSpaceOnUse">
+      <rect width="180" height="40" fill="url(#floorGrad)"/>
+      <line x1="0" y1="40" x2="180" y2="40" stroke="#c4b08a" stroke-width="1" opacity="0.4"/>
+      <line x1="60" y1="0" x2="60" y2="40" stroke="#c4b08a" stroke-width="0.5" opacity="0.3"/>
+      <line x1="130" y1="0" x2="130" y2="40" stroke="#c4b08a" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+
+    <linearGradient id="sunbeam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef9e7" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#fef9e7" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4ad7f"/>
+      <stop offset="100%" stop-color="#b8915f"/>
+    </linearGradient>
+    <linearGradient id="woodDoor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8c89a"/>
+      <stop offset="100%" stop-color="#d4ad7f"/>
+    </linearGradient>
+
+    <linearGradient id="cartGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a3f47"/>
+      <stop offset="100%" stop-color="#252830"/>
+    </linearGradient>
+
+    <linearGradient id="whiteCartGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#e0e0e0"/>
+    </linearGradient>
+
+    <linearGradient id="pegBoardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef3e2"/>
+      <stop offset="100%" stop-color="#f5e0bd"/>
+    </linearGradient>
+    <pattern id="pegHoles" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="11" cy="11" r="2" fill="#c9a878" opacity="0.5"/>
+    </pattern>
+
+    <radialGradient id="plantGrad">
+      <stop offset="0%" stop-color="#86efac"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </radialGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="3" dy="6" stdDeviation="5" flood-opacity="0.18" flood-color="#1f2937"/>
     </filter>
-    <filter id="shadowSm" x="-5%" y="-5%" width="115%" height="115%">
-      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.12"/>
+    <filter id="smallShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.15"/>
     </filter>
   </defs>
 
-  <!-- ═══ Background ═══ -->
-  <rect x="0" y="0" width="900" height="260" fill="url(#wallGrad)"/>
-  <rect x="0" y="0" width="80" height="560" fill="#ddd8d4"/>
-  <rect x="0" y="260" width="900" height="300" fill="url(#floor)"/>
-  <rect x="80" y="252" width="820" height="12" fill="#c8c3be" rx="2"/>
-  <rect x="70" y="0" width="12" height="560" fill="#c8c3be" rx="2"/>
+  <!-- Background -->
+  <rect x="0" y="0" width="1200" height="380" fill="url(#wallGrad)"/>
+  <rect x="0" y="380" width="1200" height="340" fill="url(#planks)"/>
+  <rect x="0" y="372" width="1200" height="14" fill="#a8946d" rx="2"/>
+  <rect x="0" y="386" width="1200" height="3" fill="#8a7a5a" opacity="0.5"/>
 
-  <!-- (no title — removed per request) -->
+  <!-- Sunlight beams -->
+  <polygon points="0,0 380,0 0,300" fill="url(#sunbeam)" opacity="0.7"/>
+  <polygon points="1200,0 900,0 1200,260" fill="url(#sunbeam)" opacity="0.5"/>
 
-  <!-- ═══ 木櫃子 (Wooden Cabinet) — 2 columns × 3 rows, ALL 6 labeled ═══ -->
-  <g transform="translate(105, 40)" filter="url(#shadow)">
-    <rect x="0" y="0" width="220" height="230" fill="#c4a87c" rx="4" stroke="#a08860" stroke-width="1.5"/>
-    <rect x="-4" y="-6" width="228" height="10" fill="#d4b88c" rx="3"/>
+  <!-- Light particles -->
+  <circle cx="220" cy="80" r="3" fill="#fef9e7" opacity="0.8"/>
+  <circle cx="320" cy="150" r="2" fill="#fef9e7" opacity="0.6"/>
+  <circle cx="180" cy="200" r="2" fill="#fef9e7" opacity="0.7"/>
+  <circle cx="980" cy="100" r="2.5" fill="#fef9e7" opacity="0.7"/>
+  <circle cx="1080" cy="180" r="2" fill="#fef9e7" opacity="0.6"/>
 
-    <!-- Row 1: 左上 / 右上 -->
-    <rect x="8" y="10" width="96" height="62" fill="#dcc8a0" rx="3" stroke="#b8a070" stroke-width="1"/>
-    <circle cx="88" cy="41" r="4" fill="#8b7355" stroke="#6b5540" stroke-width="0.8"/>
-    <rect x="114" y="10" width="96" height="62" fill="#dcc8a0" rx="3" stroke="#b8a070" stroke-width="1"/>
-    <circle cx="130" cy="41" r="4" fill="#8b7355" stroke="#6b5540" stroke-width="0.8"/>
-
-    <!-- Row 2: 左中 / 右中 -->
-    <rect x="8" y="80" width="96" height="62" fill="#dcc8a0" rx="3" stroke="#b8a070" stroke-width="1"/>
-    <circle cx="88" cy="111" r="4" fill="#8b7355" stroke="#6b5540" stroke-width="0.8"/>
-    <rect x="114" y="80" width="96" height="62" fill="#dcc8a0" rx="3" stroke="#b8a070" stroke-width="1"/>
-    <circle cx="130" cy="111" r="4" fill="#8b7355" stroke="#6b5540" stroke-width="0.8"/>
-
-    <!-- Row 3: 左下 / 右下 -->
-    <rect x="8" y="150" width="96" height="62" fill="#dcc8a0" rx="3" stroke="#b8a070" stroke-width="1"/>
-    <circle cx="88" cy="181" r="4" fill="#8b7355" stroke="#6b5540" stroke-width="0.8"/>
-    <rect x="114" y="150" width="96" height="62" fill="#dcc8a0" rx="3" stroke="#b8a070" stroke-width="1"/>
-    <circle cx="130" cy="181" r="4" fill="#8b7355" stroke="#6b5540" stroke-width="0.8"/>
-
-    <!-- Labels — Row 1 -->
-    <rect x="14" y="18" width="80" height="18" fill="rgba(0,0,0,0.75)" rx="3"/>
-    <text x="54" y="31" text-anchor="middle" font-size="10" fill="white" font-weight="600">木櫃子左上</text>
-    <text x="54" y="48" text-anchor="middle" font-size="8" fill="#b8a070">配件 / 記憶卡</text>
-
-    <rect x="120" y="18" width="80" height="18" fill="rgba(0,0,0,0.75)" rx="3"/>
-    <text x="160" y="31" text-anchor="middle" font-size="10" fill="white" font-weight="600">木櫃子右上</text>
-    <text x="160" y="48" text-anchor="middle" font-size="8" fill="#b8a070">收音 / 麥克風</text>
-
-    <!-- Labels — Row 2 -->
-    <rect x="14" y="88" width="80" height="18" fill="rgba(0,0,0,0.75)" rx="3"/>
-    <text x="54" y="101" text-anchor="middle" font-size="10" fill="white" font-weight="600">木櫃子左中</text>
-    <text x="54" y="118" text-anchor="middle" font-size="8" fill="#b8a070">膠帶</text>
-
-    <rect x="120" y="88" width="80" height="18" fill="rgba(0,0,0,0.85)" rx="3"/>
-    <text x="160" y="101" text-anchor="middle" font-size="10" fill="white" font-weight="700">木櫃子右中</text>
-    <text x="160" y="118" text-anchor="middle" font-size="8" fill="#b8a070">相機 / DJI 全套</text>
-    <text x="160" y="131" text-anchor="middle" font-size="7" fill="#9a8a6a">（44件）</text>
-
-    <!-- Labels — Row 3 -->
-    <rect x="14" y="158" width="80" height="18" fill="rgba(0,0,0,0.75)" rx="3"/>
-    <text x="54" y="171" text-anchor="middle" font-size="10" fill="white" font-weight="600">木櫃子左下</text>
-    <text x="54" y="188" text-anchor="middle" font-size="8" fill="#b8a070">白板備品</text>
-
-    <rect x="120" y="158" width="80" height="18" fill="rgba(0,0,0,0.75)" rx="3"/>
-    <text x="160" y="171" text-anchor="middle" font-size="10" fill="white" font-weight="600">木櫃子右下</text>
-    <text x="160" y="188" text-anchor="middle" font-size="8" fill="#b8a070">醫藥箱 / 口罩</text>
+  <!-- Plant top-left -->
+  <g transform="translate(40, 50)">
+    <path d="M 8 95 L 18 130 L 62 130 L 72 95 Z" fill="#a78865" stroke="#7d6549" stroke-width="1"/>
+    <ellipse cx="40" cy="95" rx="32" ry="6" fill="#8d6e4f"/>
+    <ellipse cx="40" cy="55" rx="28" ry="40" fill="url(#plantGrad)" opacity="0.95"/>
+    <ellipse cx="22" cy="65" rx="20" ry="32" fill="#22c55e" opacity="0.9" transform="rotate(-25 22 65)"/>
+    <ellipse cx="58" cy="65" rx="20" ry="32" fill="#22c55e" opacity="0.9" transform="rotate(25 58 65)"/>
+    <ellipse cx="40" cy="40" rx="14" ry="24" fill="#4ade80"/>
+    <path d="M 40 30 L 40 90" stroke="#15803d" stroke-width="1.2" opacity="0.4"/>
   </g>
 
-  <!-- ═══ 大推車 (Big Cart) — 3 tiers: 上/中/下 ═══ -->
-  <g transform="translate(380, 35)" filter="url(#shadow)">
-    <rect x="0" y="0" width="140" height="240" fill="#2a2a2a" rx="4"/>
-    <circle cx="15" cy="246" r="8" fill="#444" stroke="#333" stroke-width="1.5"/>
-    <circle cx="125" cy="246" r="8" fill="#444" stroke="#333" stroke-width="1.5"/>
-    <rect x="-5" y="-15" width="150" height="8" fill="#333" rx="4"/>
-    <rect x="-5" y="-15" width="6" height="20" fill="#333" rx="2"/>
-    <rect x="139" y="-15" width="6" height="20" fill="#333" rx="2"/>
-
-    <!-- 2 dividers = 3 sections -->
-    <rect x="5" y="76" width="130" height="3" fill="#444" rx="1"/>
-    <rect x="5" y="156" width="130" height="3" fill="#444" rx="1"/>
-
-    <!-- Top (上) -->
-    <rect x="15" y="10" width="80" height="12" fill="#777" rx="2"/>
-    <rect x="100" y="14" width="25" height="20" fill="#666" rx="3"/>
-    <rect x="20" y="35" width="40" height="25" fill="#555" rx="4"/>
-
-    <!-- Middle (中) -->
-    <rect x="15" y="86" width="8" height="55" fill="#888" rx="2" transform="rotate(-5 19 114)"/>
-    <rect x="35" y="88" width="6" height="52" fill="#777" rx="2"/>
-    <rect x="55" y="84" width="7" height="58" fill="#999" rx="2" transform="rotate(3 58 114)"/>
-    <rect x="80" y="90" width="40" height="30" fill="#555" rx="3"/>
-
-    <!-- Bottom (下) -->
-    <rect x="15" y="166" width="60" height="42" fill="#444" rx="4"/>
-    <rect x="85" y="172" width="40" height="32" fill="#555" rx="3"/>
-
-    <!-- Labels — 上 -->
-    <rect x="10" y="5" width="82" height="16" fill="rgba(255,255,255,0.9)" rx="3"/>
-    <text x="51" y="16" text-anchor="middle" font-size="9" fill="#333" font-weight="700">大推車（上）</text>
-    <text x="70" y="66" text-anchor="middle" font-size="7" fill="#aaa">鍵盤滑鼠</text>
-
-    <!-- Labels — 中 -->
-    <rect x="10" y="80" width="82" height="16" fill="rgba(255,255,255,0.9)" rx="3"/>
-    <text x="51" y="91" text-anchor="middle" font-size="9" fill="#333" font-weight="700">大推車（中）</text>
-    <text x="70" y="148" text-anchor="middle" font-size="7" fill="#aaa">三腳架 / 燈架</text>
-
-    <!-- Labels — 下 -->
-    <rect x="10" y="160" width="82" height="16" fill="rgba(255,255,255,0.9)" rx="3"/>
-    <text x="51" y="171" text-anchor="middle" font-size="9" fill="#333" font-weight="700">大推車（下）</text>
-    <text x="70" y="218" text-anchor="middle" font-size="7" fill="#aaa">油壓腳架 / 兔籠</text>
+  <!-- Plant top-right -->
+  <g transform="translate(1080, 80)">
+    <path d="M 5 60 L 12 85 L 48 85 L 55 60 Z" fill="#a78865" stroke="#7d6549" stroke-width="1"/>
+    <ellipse cx="30" cy="60" rx="24" ry="8" fill="#8d6e4f"/>
+    <ellipse cx="30" cy="35" rx="22" ry="30" fill="#22c55e" opacity="0.95"/>
+    <ellipse cx="18" cy="42" rx="14" ry="22" fill="#4ade80" opacity="0.9" transform="rotate(-20 18 42)"/>
+    <ellipse cx="42" cy="42" rx="14" ry="22" fill="#4ade80" opacity="0.9" transform="rotate(20 42 42)"/>
+    <ellipse cx="30" cy="22" rx="10" ry="16" fill="#86efac"/>
   </g>
 
-  <!-- ═══ 小推車 (Small Cart) — moved right, no overlap ═══ -->
-  <g transform="translate(545, 115)" filter="url(#shadowSm)">
-    <rect x="0" y="0" width="100" height="140" fill="#f0f0f0" rx="5" stroke="#ddd" stroke-width="1"/>
-    <rect x="-3" y="-12" width="106" height="6" fill="#e0e0e0" rx="3"/>
-    <circle cx="12" cy="146" r="6" fill="#ccc" stroke="#bbb" stroke-width="1"/>
-    <circle cx="88" cy="146" r="6" fill="#ccc" stroke="#bbb" stroke-width="1"/>
+  <!-- Wooden Cabinet (bigger) -->
+  <g transform="translate(140, 50)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="290" height="320" fill="url(#woodGrad)" rx="6"/>
+    <rect x="-6" y="-8" width="302" height="14" fill="#e0bf91" rx="4"/>
+    <rect x="-6" y="-8" width="302" height="3" fill="#f0d2a7"/>
 
-    <rect x="5" y="44" width="90" height="2" fill="#ddd"/>
-    <rect x="5" y="90" width="90" height="2" fill="#ddd"/>
+    <rect x="10" y="12" width="130" height="92" fill="url(#woodDoor)" rx="4" stroke="#9d7d52" stroke-width="1.2"/>
+    <circle cx="120" cy="58" r="5" fill="#5d4530"/>
+    <rect x="148" y="12" width="130" height="92" fill="url(#woodDoor)" rx="4" stroke="#9d7d52" stroke-width="1.2"/>
+    <circle cx="158" cy="58" r="5" fill="#5d4530"/>
 
-    <rect x="15" y="8" width="30" height="30" fill="#e8e8e8" rx="4"/>
-    <rect x="55" y="10" width="30" height="26" fill="#e0e0e0" rx="4"/>
-    <rect x="20" y="52" width="60" height="30" fill="#e5e5e5" rx="4"/>
+    <rect x="10" y="112" width="130" height="92" fill="url(#woodDoor)" rx="4" stroke="#9d7d52" stroke-width="1.2"/>
+    <circle cx="120" cy="158" r="5" fill="#5d4530"/>
+    <rect x="148" y="112" width="130" height="92" fill="url(#woodDoor)" rx="4" stroke="#9d7d52" stroke-width="1.2"/>
+    <circle cx="158" cy="158" r="5" fill="#5d4530"/>
 
-    <rect x="10" y="96" width="80" height="16" fill="rgba(0,0,0,0.75)" rx="3"/>
-    <text x="50" y="108" text-anchor="middle" font-size="9" fill="white" font-weight="600">小推車</text>
-    <text x="50" y="88" text-anchor="middle" font-size="7" fill="#999">補光燈 / Godox</text>
+    <rect x="10" y="212" width="130" height="92" fill="url(#woodDoor)" rx="4" stroke="#9d7d52" stroke-width="1.2"/>
+    <circle cx="120" cy="258" r="5" fill="#5d4530"/>
+    <rect x="148" y="212" width="130" height="92" fill="url(#woodDoor)" rx="4" stroke="#9d7d52" stroke-width="1.2"/>
+    <circle cx="158" cy="258" r="5" fill="#5d4530"/>
+
+    <text x="75" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#5d4530">左上</text>
+    <text x="213" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#5d4530">右上</text>
+    <text x="75" y="165" text-anchor="middle" font-size="16" font-weight="700" fill="#5d4530">左中</text>
+    <text x="213" y="165" text-anchor="middle" font-size="16" font-weight="700" fill="#5d4530">右中</text>
+    <text x="75" y="265" text-anchor="middle" font-size="16" font-weight="700" fill="#5d4530">左下</text>
+    <text x="213" y="265" text-anchor="middle" font-size="16" font-weight="700" fill="#5d4530">右下</text>
+  </g>
+  <text x="285" y="412" text-anchor="middle" font-size="20" font-weight="800" fill="#1f2937">木櫃子</text>
+
+  <!-- Big Cart (3 tiers) -->
+  <g transform="translate(490, 50)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="180" height="320" fill="url(#cartGrad)" rx="8"/>
+    <rect x="-4" y="-6" width="188" height="12" fill="#52575f" rx="4"/>
+    <rect x="10" y="14" width="160" height="96" fill="#f8f9fa" rx="3"/>
+    <rect x="10" y="116" width="160" height="96" fill="#f8f9fa" rx="3"/>
+    <rect x="10" y="218" width="160" height="96" fill="#f8f9fa" rx="3"/>
+    <text x="90" y="68" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">上層</text>
+    <text x="90" y="170" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">中層</text>
+    <text x="90" y="272" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">下層</text>
+    <circle cx="20" cy="334" r="14" fill="#1a1d24" stroke="#0a0c10" stroke-width="2"/>
+    <circle cx="20" cy="334" r="6" fill="#3a3f47"/>
+    <circle cx="160" cy="334" r="14" fill="#1a1d24" stroke="#0a0c10" stroke-width="2"/>
+    <circle cx="160" cy="334" r="6" fill="#3a3f47"/>
+  </g>
+  <text x="580" y="412" text-anchor="middle" font-size="20" font-weight="800" fill="#1f2937">大推車</text>
+
+  <!-- White Cart (small) -->
+  <g transform="translate(720, 100)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="140" height="270" fill="url(#whiteCartGrad)" rx="6" stroke="#bbbbbb" stroke-width="1"/>
+    <rect x="-3" y="-5" width="146" height="10" fill="#e8e8e8" rx="3"/>
+    <rect x="8" y="10" width="124" height="120" fill="#f5f5f5" rx="3" stroke="#d0d0d0" stroke-width="0.8"/>
+    <rect x="8" y="138" width="124" height="120" fill="#f5f5f5" rx="3" stroke="#d0d0d0" stroke-width="0.8"/>
+    <text x="70" y="78" text-anchor="middle" font-size="15" font-weight="700" fill="#4b5563">小推車</text>
+    <text x="70" y="206" text-anchor="middle" font-size="11" fill="#6b7280">補光燈/Godox</text>
+    <circle cx="14" cy="280" r="11" fill="#5a5d65" stroke="#3a3f47" stroke-width="1.5"/>
+    <circle cx="126" cy="280" r="11" fill="#5a5d65" stroke="#3a3f47" stroke-width="1.5"/>
   </g>
 
-  <!-- ═══ 洞洞板 (Pegboard) ═══ -->
-  <g transform="translate(660, 15)" filter="url(#shadowSm)">
-    <rect x="0" y="0" width="220" height="240" fill="#2d2d2d" rx="3"/>
+  <!-- Pegboard (bigger) -->
+  <g transform="translate(900, 60)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="260" height="310" fill="url(#pegBoardGrad)" rx="8" stroke="#b89863" stroke-width="2"/>
+    <rect x="14" y="14" width="232" height="282" fill="url(#pegHoles)" rx="4"/>
+    <rect x="40" y="40" width="60" height="40" fill="#86efac" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="120" y="50" width="50" height="60" fill="#fbbf24" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="190" y="40" width="40" height="50" fill="#fb7185" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="50" y="120" width="80" height="30" fill="#60a5fa" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="150" y="130" width="70" height="40" fill="#a78bfa" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="30" y="180" width="50" height="50" fill="#34d399" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="100" y="190" width="60" height="35" fill="#f97316" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+    <rect x="180" y="200" width="55" height="60" fill="#22d3ee" rx="3" opacity="0.85" filter="url(#smallShadow)"/>
+  </g>
+  <text x="1030" y="412" text-anchor="middle" font-size="20" font-weight="800" fill="#1f2937">洞洞板</text>
 
-    <g fill="#222">
-      <circle cx="18" cy="20" r="3"/><circle cx="43" cy="20" r="3"/><circle cx="68" cy="20" r="3"/><circle cx="93" cy="20" r="3"/><circle cx="118" cy="20" r="3"/><circle cx="143" cy="20" r="3"/><circle cx="168" cy="20" r="3"/><circle cx="193" cy="20" r="3"/>
-      <circle cx="18" cy="45" r="3"/><circle cx="43" cy="45" r="3"/><circle cx="68" cy="45" r="3"/><circle cx="93" cy="45" r="3"/><circle cx="118" cy="45" r="3"/><circle cx="143" cy="45" r="3"/><circle cx="168" cy="45" r="3"/><circle cx="193" cy="45" r="3"/>
-      <circle cx="18" cy="70" r="3"/><circle cx="43" cy="70" r="3"/><circle cx="68" cy="70" r="3"/><circle cx="93" cy="70" r="3"/><circle cx="118" cy="70" r="3"/><circle cx="143" cy="70" r="3"/><circle cx="168" cy="70" r="3"/><circle cx="193" cy="70" r="3"/>
-      <circle cx="18" cy="95" r="3"/><circle cx="43" cy="95" r="3"/><circle cx="68" cy="95" r="3"/><circle cx="93" cy="95" r="3"/><circle cx="118" cy="95" r="3"/><circle cx="143" cy="95" r="3"/><circle cx="168" cy="95" r="3"/><circle cx="193" cy="95" r="3"/>
-      <circle cx="18" cy="120" r="3"/><circle cx="43" cy="120" r="3"/><circle cx="68" cy="120" r="3"/><circle cx="93" cy="120" r="3"/><circle cx="118" cy="120" r="3"/><circle cx="143" cy="120" r="3"/><circle cx="168" cy="120" r="3"/><circle cx="193" cy="120" r="3"/>
-      <circle cx="18" cy="145" r="3"/><circle cx="43" cy="145" r="3"/><circle cx="68" cy="145" r="3"/><circle cx="93" cy="145" r="3"/><circle cx="118" cy="145" r="3"/><circle cx="143" cy="145" r="3"/><circle cx="168" cy="145" r="3"/><circle cx="193" cy="145" r="3"/>
-      <circle cx="18" cy="170" r="3"/><circle cx="43" cy="170" r="3"/><circle cx="68" cy="170" r="3"/><circle cx="93" cy="170" r="3"/><circle cx="118" cy="170" r="3"/><circle cx="143" cy="170" r="3"/><circle cx="168" cy="170" r="3"/><circle cx="193" cy="170" r="3"/>
-      <circle cx="18" cy="195" r="3"/><circle cx="43" cy="195" r="3"/><circle cx="68" cy="195" r="3"/><circle cx="93" cy="195" r="3"/><circle cx="118" cy="195" r="3"/><circle cx="143" cy="195" r="3"/><circle cx="168" cy="195" r="3"/><circle cx="193" cy="195" r="3"/>
-      <circle cx="18" cy="220" r="3"/><circle cx="43" cy="220" r="3"/><circle cx="68" cy="220" r="3"/><circle cx="93" cy="220" r="3"/><circle cx="118" cy="220" r="3"/><circle cx="143" cy="220" r="3"/><circle cx="168" cy="220" r="3"/><circle cx="193" cy="220" r="3"/>
+  <!-- Floor area: ring light + tripods -->
+  <g transform="translate(900, 440)">
+    <g filter="url(#smallShadow)">
+      <circle cx="50" cy="60" r="40" fill="none" stroke="#facc15" stroke-width="6"/>
+      <circle cx="50" cy="60" r="40" fill="none" stroke="#fef08a" stroke-width="2" opacity="0.8"/>
+      <line x1="50" y1="100" x2="50" y2="200" stroke="#374151" stroke-width="3"/>
+      <ellipse cx="50" cy="200" rx="28" ry="6" fill="#374151"/>
     </g>
-
-    <path d="M22,55 Q32,80 22,100" stroke="#888" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M42,60 Q52,85 47,105" stroke="#666" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <rect x="75" y="50" width="35" height="12" fill="#aaa" rx="3"/>
-    <rect x="75" y="70" width="35" height="12" fill="#aaa" rx="3"/>
-    <rect x="75" y="90" width="35" height="12" fill="#aaa" rx="3"/>
-    <rect x="145" y="55" width="35" height="30" fill="#1a1a1a" rx="5"/>
-    <rect x="155" y="60" width="15" height="4" fill="#333" rx="2"/>
-    <rect x="135" y="110" width="55" height="35" fill="#e8e0d8" rx="4" stroke="#ccc" stroke-width="0.5"/>
-    <circle cx="147" cy="125" r="4" fill="#ddd" stroke="#bbb" stroke-width="0.5"/>
-    <circle cx="163" cy="125" r="4" fill="#ddd" stroke="#bbb" stroke-width="0.5"/>
-    <circle cx="179" cy="125" r="4" fill="#ddd" stroke="#bbb" stroke-width="0.5"/>
-    <rect x="75" y="120" width="45" height="55" fill="#fff" rx="2" stroke="#ddd" stroke-width="0.5"/>
-    <text x="97" y="140" text-anchor="middle" font-size="6" fill="#c00" font-weight="700">借用物品規則</text>
-
-    <rect x="8" y="5" width="64" height="16" fill="rgba(255,255,255,0.9)" rx="3"/>
-    <text x="40" y="16" text-anchor="middle" font-size="9" fill="#333" font-weight="700">洞洞板</text>
-    <rect x="12" y="28" width="55" height="14" fill="rgba(0,0,0,0.7)" rx="2"/>
-    <text x="39" y="38" text-anchor="middle" font-size="7" fill="white">轉接頭 / 線材</text>
-    <rect x="125" y="40" width="70" height="14" fill="rgba(0,0,0,0.7)" rx="2"/>
-    <text x="160" y="50" text-anchor="middle" font-size="7" fill="white">Apple TV / 混音器</text>
-    <rect x="60" y="195" width="100" height="14" fill="rgba(0,0,0,0.7)" rx="2"/>
-    <text x="110" y="205" text-anchor="middle" font-size="7" fill="white">UGREEN / HDMI轉接</text>
+    <g transform="translate(140, 0)" filter="url(#smallShadow)">
+      <line x1="20" y1="20" x2="0" y2="200" stroke="#1f2937" stroke-width="3"/>
+      <line x1="20" y1="20" x2="40" y2="200" stroke="#1f2937" stroke-width="3"/>
+      <line x1="20" y1="20" x2="20" y2="200" stroke="#1f2937" stroke-width="3"/>
+      <circle cx="20" cy="15" r="8" fill="#374151"/>
+    </g>
+    <g transform="translate(220, 30)" filter="url(#smallShadow)">
+      <line x1="15" y1="0" x2="0" y2="170" stroke="#1f2937" stroke-width="2.5"/>
+      <line x1="15" y1="0" x2="30" y2="170" stroke="#1f2937" stroke-width="2.5"/>
+      <line x1="15" y1="0" x2="15" y2="170" stroke="#1f2937" stroke-width="2.5"/>
+      <circle cx="15" cy="-5" r="6" fill="#374151"/>
+    </g>
+  </g>
+  <g transform="translate(900, 660)">
+    <rect x="0" y="0" width="260" height="34" fill="#374151" rx="6" opacity="0.92"/>
+    <text x="130" y="23" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">地上（洞洞板下方）</text>
   </g>
 
-  <!-- ═══ 地上 (Floor items below pegboard) ═══ -->
-  <g transform="translate(660, 290)">
-    <circle cx="30" cy="25" r="20" fill="none" stroke="#888" stroke-width="4"/>
-    <circle cx="30" cy="25" r="12" fill="none" stroke="#999" stroke-width="1.5"/>
-    <rect x="27" y="45" width="6" height="55" fill="#777" rx="2"/>
-    <rect x="12" y="98" width="36" height="4" fill="#888" rx="2"/>
-
-    <rect x="95" y="15" width="5" height="85" fill="#666" rx="2"/>
-    <line x1="78" y1="98" x2="97" y2="75" stroke="#777" stroke-width="3" stroke-linecap="round"/>
-    <line x1="118" y1="98" x2="98" y2="75" stroke="#777" stroke-width="3" stroke-linecap="round"/>
-
-    <rect x="155" y="8" width="4" height="90" fill="#999" rx="1"/>
-    <rect x="145" y="96" width="25" height="6" fill="#aaa" rx="2"/>
-
-    <rect x="10" y="110" width="190" height="20" fill="rgba(0,0,0,0.75)" rx="4"/>
-    <text x="105" y="124" text-anchor="middle" font-size="10" fill="white" font-weight="600">地上（洞洞板下方）</text>
-    <text x="105" y="142" text-anchor="middle" font-size="8" fill="#888">環形燈 / 手機支架 / 展示架</text>
-  </g>
-
-  <!-- ═══ Legend ═══ -->
-  <g transform="translate(90, 440)">
-    <rect x="0" y="0" width="720" height="90" fill="rgba(255,255,255,0.85)" rx="10" stroke="#e0e0e0" stroke-width="1"/>
-    <text x="360" y="22" text-anchor="middle" font-size="12" font-weight="700" fill="#555">各位置收納數量</text>
-
-    <rect x="20" y="35" width="110" height="22" fill="#0891b2" rx="11"/><text x="75" y="50" text-anchor="middle" font-size="9" fill="white" font-weight="600">木櫃子右中 44件</text>
-    <rect x="140" y="35" width="90" height="22" fill="#6366f1" rx="11"/><text x="185" y="50" text-anchor="middle" font-size="9" fill="white" font-weight="600">洞洞板 18件</text>
-    <rect x="240" y="35" width="100" height="22" fill="#10b981" rx="11"/><text x="290" y="50" text-anchor="middle" font-size="9" fill="white" font-weight="600">木櫃子左上 12件</text>
-    <rect x="350" y="35" width="100" height="22" fill="#f59e0b" rx="11"/><text x="400" y="50" text-anchor="middle" font-size="9" fill="white" font-weight="600">木櫃子右上 12件</text>
-    <rect x="460" y="35" width="90" height="22" fill="#94a3b8" rx="11"/><text x="505" y="50" text-anchor="middle" font-size="9" fill="white" font-weight="600">地上 6件</text>
-
-    <rect x="20" y="62" width="105" height="22" fill="#8b5cf6" rx="11"/><text x="72" y="77" text-anchor="middle" font-size="9" fill="white" font-weight="600">大推車（中）5件</text>
-    <rect x="135" y="62" width="100" height="22" fill="#64748b" rx="11"/><text x="185" y="77" text-anchor="middle" font-size="9" fill="white" font-weight="600">大推車（下）4件</text>
-    <rect x="245" y="62" width="80" height="22" fill="#ec4899" rx="11"/><text x="285" y="77" text-anchor="middle" font-size="9" fill="white" font-weight="600">小推車 4件</text>
-    <rect x="555" y="35" width="80" height="22" fill="#333" rx="11"/><text x="595" y="50" text-anchor="middle" font-size="9" fill="white" font-weight="700">共 106 件</text>
-  </g>
+  <!-- Floor shadows -->
+  <ellipse cx="285" cy="380" rx="180" ry="6" fill="#000" opacity="0.1"/>
+  <ellipse cx="580" cy="395" rx="100" ry="5" fill="#000" opacity="0.1"/>
+  <ellipse cx="790" cy="378" rx="80" ry="4" fill="#000" opacity="0.1"/>
+  <ellipse cx="1030" cy="380" rx="140" ry="5" fill="#000" opacity="0.1"/>
 </svg>

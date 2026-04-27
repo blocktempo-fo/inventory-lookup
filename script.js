@@ -759,44 +759,72 @@
 
     // Render the interactive SVG map into the #locationMap element
     init() {
-      if (this.initialized) return;
-      this.initialized = true;
-
-      // Each area: [位置名稱, x, y, width, height, color, sublabel]
-      // Coordinates match location-map.svg viewBox="0 0 900 560"
+      // Always re-render: state.rows may have been loaded after first init
+      // Each area: [位置名稱, x, y, width, height, color]
+      // Coordinates match location-map.svg viewBox="0 0 1200 720"
       const areas = [
-        // 木櫃子 6 格 (translate 105,40 + door offsets)
-        { loc: '木櫃子左上', x: 113, y: 50, w: 96, h: 62, color: '#10b981', sub: '配件 / 記憶卡' },
-        { loc: '木櫃子右上', x: 219, y: 50, w: 96, h: 62, color: '#f59e0b', sub: '收音 / 麥克風' },
-        // 木櫃子左中/左下/右下 不是器材，不需要跳轉
-        { loc: '木櫃子右中', x: 219, y: 120, w: 96, h: 62, color: '#0891b2', sub: '相機 / DJI 全套' },
-        // 大推車 3 層 (translate 380,35)
-        { loc: '大推車（上）', x: 385, y: 38, w: 130, h: 73, color: '#e11d48', sub: '鍵盤滑鼠' },
-        { loc: '大推車（中）', x: 385, y: 115, w: 130, h: 76, color: '#8b5cf6', sub: '三腳架 / 燈架' },
-        { loc: '大推車（下）', x: 385, y: 195, w: 130, h: 78, color: '#64748b', sub: '油壓腳架 / 兔籠' },
-        // 小推車 (translate 545,115)
-        { loc: '小推車', x: 545, y: 115, w: 100, h: 145, color: '#ec4899', sub: '補光燈 / Godox' },
-        // 洞洞板 (translate 660,15)
-        { loc: '洞洞板', x: 660, y: 15, w: 220, h: 240, color: '#6366f1', sub: '轉接頭 / 線材' },
-        // 地上 (translate 660,290)
-        { loc: '地上', x: 660, y: 290, w: 200, h: 150, color: '#94a3b8', sub: '環形燈 / 展示架' },
+        // 木櫃子 6 格 (translate 140,50 + door offsets)
+        { loc: '木櫃子左上', x: 150, y: 62, w: 130, h: 92, color: '#10b981' },
+        { loc: '木櫃子右上', x: 288, y: 62, w: 130, h: 92, color: '#f59e0b' },
+        { loc: '木櫃子右中', x: 288, y: 162, w: 130, h: 92, color: '#0891b2' },
+        // 大推車 3 層 (translate 490,50)
+        { loc: '大推車（上）', x: 500, y: 64, w: 160, h: 96, color: '#e11d48' },
+        { loc: '大推車（中）', x: 500, y: 166, w: 160, h: 96, color: '#8b5cf6' },
+        { loc: '大推車（下）', x: 500, y: 268, w: 160, h: 96, color: '#64748b' },
+        // 小推車 (translate 720,100)
+        { loc: '小推車', x: 720, y: 100, w: 140, h: 270, color: '#ec4899' },
+        // 洞洞板 (translate 900,60)
+        { loc: '洞洞板', x: 900, y: 60, w: 260, h: 310, color: '#6366f1' },
+        // 地上 (translate 900,440)
+        { loc: '地上', x: 900, y: 440, w: 260, h: 220, color: '#94a3b8' },
       ];
 
-      // Build clickable overlay areas on the SVG
+      // Build clickable overlay areas on the SVG (percentages of 1200×720)
       const overlays = areas.map(a => {
-        return `<div class="map-hotspot" data-location="${escapeHtml(a.loc)}" style="left:${a.x/9}%;top:${a.y/6}%;width:${a.w/9}%;height:${a.h/6}%;--spot-color:${a.color}" title="點擊查看「${a.loc}」的設備">
+        return `<div class="map-hotspot" data-location="${escapeHtml(a.loc)}" style="left:${a.x/12}%;top:${a.y/7.2}%;width:${a.w/12}%;height:${a.h/7.2}%;--spot-color:${a.color}" title="點擊查看「${a.loc}」的設備">
           <span class="map-hotspot-label">${escapeHtml(a.loc)}</span>
         </div>`;
       }).join('');
 
+      // Build the location list (Plan C bottom list)
+      const locationCounts = {};
+      for (const row of state.rows) {
+        const loc = (row['位置'] || '').trim();
+        if (loc) locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+      }
+      // Sort by count (descending)
+      const sortedLocs = Object.entries(locationCounts).sort((a, b) => b[1] - a[1]);
+      // Map area colors by location
+      const locColorMap = {};
+      for (const a of areas) locColorMap[a.loc] = a.color;
+
+      const listHtml = sortedLocs.map(([loc, count]) => {
+        const c = locColorMap[loc] || '#94a3b8';
+        return `
+          <button type="button" class="loc-list-row" data-location="${escapeHtml(loc)}">
+            <span class="loc-list-dot" style="background:${c}"></span>
+            <span class="loc-list-name">${escapeHtml(loc)}</span>
+            <span class="loc-list-count">${count} 件</span>
+            <span class="loc-list-arrow">${Icons.chevronRight}</span>
+          </button>`;
+      }).join('');
+
       dom.locationMap.innerHTML = `
+        <div class="loc-banner">
+          <span class="loc-banner-icon">💡</span>
+          點地圖可放大檢視 · 點清單篩選位置
+        </div>
         <div class="location-map-container">
-          <img src="./location-map.svg" alt="器材室收納位置圖" class="location-map" />
+          <img src="./location-map.svg?v=2" alt="器材室收納位置圖" class="location-map" />
           ${overlays}
           <button type="button" class="map-zoom-btn" aria-label="放大檢視">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-            放大
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+            全螢幕
           </button>
+        </div>
+        <div class="loc-list">
+          <h3 class="loc-list-title">各位置收納數量</h3>
+          ${listHtml}
         </div>`;
 
       // Bind clicks: click area → switch to that location tab
@@ -806,7 +834,17 @@
           state.currentMode = 'location';
           state.currentTab = loc;
           render();
-          // Scroll to the content
+          dom.contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      // Bind clicks on the list rows
+      dom.locationMap.querySelectorAll('.loc-list-row').forEach(el => {
+        el.addEventListener('click', () => {
+          const loc = el.dataset.location;
+          state.currentMode = 'location';
+          state.currentTab = loc;
+          render();
           dom.contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
@@ -833,7 +871,7 @@
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
           <div class="map-zoom-scroll">
-            <img src="./location-map.svg" alt="器材室收納位置圖（放大）" class="map-zoom-img" />
+            <img src="./location-map.svg?v=2" alt="器材室收納位置圖（放大）" class="map-zoom-img" />
           </div>`;
         document.body.appendChild(overlay);
         overlay.querySelector('.map-zoom-close').addEventListener('click', () => {
