@@ -464,10 +464,25 @@ select {
   color: #065f46;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-weight: 500;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
 }
-.loc-banner-icon { font-size: 14px; }
+.loc-banner-icon { font-size: 14px; flex-shrink: 0; }
+.loc-banner-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+@media (max-width: 600px) {
+  .loc-banner { font-size: 12px; padding: 9px 12px; gap: 6px; }
+  .loc-banner-text { font-size: 12px; }
+}
 
 /* Bottom list (Plan C) */
 .loc-list {
@@ -533,11 +548,17 @@ select {
 }
 
 .location-map-container {
-  position: relative;
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   background: #f0f9f0;
+  position: relative;
+}
+.location-map-inner {
+  position: relative;
+  width: 100%;
+  /* Hotspots are positioned in % of this inner element so they always
+     align with the SVG image regardless of scroll position. */
 }
 .location-map {
   width: 100%;
@@ -546,56 +567,43 @@ select {
 }
 
 /* On mobile: show map at larger native size with horizontal scroll
-   so text/icons stay legible without zooming */
+   so text/icons stay legible without zooming. The inner wrapper widens
+   so hotspots stay aligned with the enlarged SVG. */
 @media (max-width: 600px) {
-  .location-map {
-    min-width: 760px; /* roughly 2× phone width — text becomes readable */
+  .location-map-inner {
     width: 760px;
   }
-  /* Hint scroll affordance */
-  .location-map-container::after {
-    content: '← 左右滑動 →';
-    position: absolute;
-    bottom: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(31,41,55,0.75);
-    color: #fff;
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 999px;
-    pointer-events: none;
-    z-index: 4;
+  .location-map {
+    width: 760px;
   }
 }
 
-/* Zoom button on map (top-right corner) */
-.map-zoom-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
+/* Zoom button inside the banner */
+.loc-banner button.map-zoom-btn {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 10px;
-  background: rgba(255,255,255,0.95);
-  border: 1px solid var(--color-border-light);
+  padding: 5px 10px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #a7f3d0;
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-text);
+  color: #065f46;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  z-index: 5;
   transition: all var(--transition-fast);
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: max-content;
+  line-height: 1;
 }
 .map-zoom-btn:hover {
   background: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  border-color: #6ee7b7;
 }
 .map-zoom-btn:active {
-  transform: translateY(0);
+  background: #ecfdf5;
 }
 
 /* Full-screen zoom overlay */

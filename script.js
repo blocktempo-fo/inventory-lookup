@@ -812,15 +812,14 @@
       dom.locationMap.innerHTML = `
         <div class="loc-banner">
           <span class="loc-banner-icon">💡</span>
-          點地圖可放大檢視 · 點清單篩選位置
+          <span class="loc-banner-text">點地圖或清單篩選位置</span>
+          <button type="button" class="map-zoom-btn" aria-label="放大檢視"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg><span>全螢幕</span></button>
         </div>
         <div class="location-map-container">
-          <img src="./location-map.svg?v=3" alt="器材室收納位置圖" class="location-map" />
-          ${overlays}
-          <button type="button" class="map-zoom-btn" aria-label="放大檢視">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-            全螢幕
-          </button>
+          <div class="location-map-inner">
+            <img src="./location-map.svg?v=3" alt="器材室收納位置圖" class="location-map" />
+            ${overlays}
+          </div>
         </div>
         <div class="loc-list">
           <h3 class="loc-list-title">各位置收納數量</h3>
