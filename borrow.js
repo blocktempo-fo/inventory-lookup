@@ -277,7 +277,81 @@
       },
     };
 
-    // ═══ Return Bundle Check — 管理員歸還時顯示套組成員狀態 ═══
+    // ═══ Return Item Picker — 列出可一起歸還的器材（含同套組成員）═══
+    function renderReturnItemPicker(modalEl, currentItem) {
+      const picker = modalEl.querySelector('#returnItemPicker');
+      if (!picker) return;
+
+      const currentId = (currentItem['編號'] || '').trim();
+      const items = [{ item: currentItem, isCurrent: true, sameBundleAndBorrowed: false }];
+
+      // 找同套組借出中的其他成員（讓管理員可一起勾起來歸還）
+      if (window.__bundles) {
+        const bundles = window.__bundles.getBundlesForItem(currentId);
+        if (bundles && bundles.length > 0) {
+          const seen = new Set([currentId]);
+          for (const b of bundles) {
+            for (const member of b.items) {
+              const mid = (member.itemId || '').trim();
+              if (seen.has(mid)) continue;
+              seen.add(mid);
+              const memberItem = app.state.rows.find(r => (r['編號'] || '').trim() === mid);
+              if (!memberItem) continue;
+              const status = (memberItem['狀態'] || '').trim();
+              if (status === '借出中') {
+                items.push({ item: memberItem, isCurrent: false, sameBundleAndBorrowed: true });
+              }
+            }
+          }
+        }
+      }
+
+      const hasBundle = items.length > 1;
+
+      picker.innerHTML = `
+        <div class="return-picker-header">
+          <strong>選擇要歸還的器材</strong>
+          ${hasBundle ? `<span class="return-picker-hint">同套組還有 ${items.length - 1} 件借出中，可勾選一起歸還</span>` : ''}
+        </div>
+        <div class="return-picker-list">
+          ${items.map((it, idx) => {
+            const item = it.item;
+            return `
+              <label class="return-item-row ${it.isCurrent ? 'is-current' : ''}">
+                <input type="checkbox" data-item-id="${app.escapeHtml((item['編號']||'').trim())}" ${it.isCurrent ? 'checked' : ''} />
+                <div class="return-item-info">
+                  <div class="return-item-name">
+                    ${app.escapeHtml(item['項目'] || '')}
+                    ${it.isCurrent ? '<span class="bundle-current-tag">📍 你點選的</span>' : ''}
+                  </div>
+                  <div class="return-item-meta">
+                    <span class="mono">${app.escapeHtml((item['編號']||'').trim())}</span>
+                    <span class="bundle-status borrowed">借出中</span>
+                    ${item['借用人'] ? `<span class="return-item-borrower">借用人：${app.escapeHtml(item['借用人'])}</span>` : ''}
+                  </div>
+                </div>
+              </label>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      picker.addEventListener('change', (e) => {
+        if (e.target.matches('input[type=checkbox]')) {
+          updateReturnSubmitBtn(modalEl);
+        }
+      });
+    }
+
+    function updateReturnSubmitBtn(modalEl) {
+      const checked = modalEl.querySelectorAll('.return-item-row input[type=checkbox]:checked').length;
+      const btn = modalEl.querySelector('#returnSubmitBtn');
+      if (!btn) return;
+      btn.textContent = checked === 0 ? '請勾選器材' : (checked === 1 ? '確認歸還 1 件' : `確認歸還 ${checked} 件`);
+      btn.disabled = checked === 0;
+    }
+
+    // ═══ Return Bundle Check — (legacy, kept for reference) ═══
     function renderReturnBundleCheck(modalEl, item) {
       // 移除舊的（防重複）
       const old = modalEl.querySelector('.return-bundle-check');
@@ -647,7 +721,7 @@
             </button>
             <div class="borrow-form-wrap">
               <h2 class="borrow-form-title return-title">歸還檢核</h2>
-              <div id="returnItemSummary" class="borrow-item-summary"></div>
+              <div id="returnItemPicker" class="return-item-picker"></div>
               <form id="returnForm" class="borrow-form">
                 <div class="form-group check-group">
                   <label>外觀正常</label>
@@ -708,19 +782,20 @@
         if (!this.el) return;
         this.currentItem = item;
 
-        const summary = this.el.querySelector('#returnItemSummary');
-        summary.innerHTML = `
-          <div class="borrow-summary-row"><span class="borrow-label">項目</span><span>${app.escapeHtml(item['項目'] || '')}</span></div>
-          <div class="borrow-summary-row"><span class="borrow-label">編號</span><span class="mono">${app.escapeHtml(item['編號'] || '')}</span></div>
-          <div class="borrow-summary-row"><span class="borrow-label">借用人</span><span>${app.escapeHtml(item['借用人'] || '')}</span></div>`;
-
-        // 套組檢核：如果這件器材屬於任何套組，顯示套組成員的當前狀態
-        renderReturnBundleCheck(this.el, item);
+        // 渲染可勾選的項目列表（包含當前項目 + 同套組借出中的其他成員）
+        renderReturnItemPicker(this.el, item);
 
         this.el.querySelector('#returnForm').reset();
         this.el.querySelector('#returnResult').hidden = true;
         this.el.querySelector('#returnSubmitBtn').disabled = false;
-        this.el.querySelector('#returnSubmitBtn').textContent = '確認歸還';
+
+        // 重設 radio defaults (true)
+        ['rf_appearance', 'rf_function', 'rf_accessories', 'rf_storage'].forEach(name => {
+          const el = this.el.querySelector(`input[name="${name}"][value="true"]`);
+          if (el) el.checked = true;
+        });
+
+        updateReturnSubmitBtn(this.el);
 
         this.el.classList.add('is-open');
         this.el.removeAttribute('hidden');
@@ -740,8 +815,19 @@
       async submit() {
         const btn = this.el.querySelector('#returnSubmitBtn');
         const resultDiv = this.el.querySelector('#returnResult');
+
+        // 取得所有勾選的項目
+        const checked = Array.from(this.el.querySelectorAll('.return-item-row input[type=checkbox]:checked'));
+        const itemIds = checked.map(cb => cb.dataset.itemId).filter(Boolean);
+        if (itemIds.length === 0) {
+          resultDiv.hidden = false;
+          resultDiv.className = 'borrow-result error';
+          resultDiv.textContent = '請至少勾選一件器材';
+          return;
+        }
+
         btn.disabled = true;
-        btn.textContent = '處理中...';
+        resultDiv.hidden = true;
 
         const getRadio = (name) => this.el.querySelector(`input[name="${name}"]:checked`)?.value === 'true';
         const appearance = getRadio('rf_appearance');
@@ -749,43 +835,57 @@
         const accessories = getRadio('rf_accessories');
         const storage = getRadio('rf_storage');
         const allOk = appearance && func && accessories && storage;
+        const result = allOk ? '正常' : ((!accessories) ? '缺件' : '損壞');
+        const damageNote = this.el.querySelector('#rf_damage').value.trim();
 
-        const data = {
-          item_id: (this.currentItem['編號'] || '').trim(),
-          checker: '管理者',
-          appearance_ok: appearance,
-          function_ok: func,
-          accessories_ok: accessories,
-          storage_ok: storage,
-          damage_note: this.el.querySelector('#rf_damage').value.trim(),
-          result: allOk ? '正常' : ((!accessories) ? '缺件' : '損壞'),
-        };
+        const successList = [];
+        const failList = [];
 
-        const result = await BorrowAPI.return_(data);
+        for (let i = 0; i < itemIds.length; i++) {
+          btn.textContent = `處理中... (${i + 1}/${itemIds.length})`;
+          const data = {
+            item_id: itemIds[i],
+            checker: '管理者',
+            appearance_ok: appearance,
+            function_ok: func,
+            accessories_ok: accessories,
+            storage_ok: storage,
+            damage_note: damageNote,
+            result,
+          };
+          const apiResult = await BorrowAPI.return_(data);
+          if (apiResult.success) {
+            successList.push(itemIds[i]);
+            OptimisticCache.set(itemIds[i], {
+              '狀態': allOk ? '可借用' : '維修中',
+              '借用人': '',
+              '借出日期': '',
+              '預計歸還日': '',
+            });
+          } else {
+            failList.push({ id: itemIds[i], message: apiResult.message });
+          }
+        }
+
+        OptimisticCache.apply();
+        app.Modal.close();
+        app.render();
+
         resultDiv.hidden = false;
-
-        if (result.success) {
+        if (failList.length === 0) {
           resultDiv.className = 'borrow-result success';
-          resultDiv.innerHTML = '<strong>歸還處理完成！</strong>';
-
-          // Optimistic update
-          const itemId = (this.currentItem['編號'] || '').trim();
-          OptimisticCache.set(itemId, {
-            '狀態': allOk ? '可借用' : '維修中',
-            '借用人': '',
-            '借出日期': '',
-            '預計歸還日': '',
-          });
-          OptimisticCache.apply();
-
-          app.Modal.close();
-          app.render();
+          resultDiv.innerHTML = `<strong>✅ 歸還處理完成！</strong><br>共處理 ${successList.length} 件器材`;
           setTimeout(() => this.close(), 2000);
         } else {
           resultDiv.className = 'borrow-result error';
-          resultDiv.textContent = result.message || '歸還處理失敗';
+          resultDiv.innerHTML = `
+            <strong>部分失敗</strong><br>
+            成功 ${successList.length} 件 / 失敗 ${failList.length} 件<br>
+            ${failList.map(f => `${app.escapeHtml(f.id)}: ${app.escapeHtml(f.message)}`).join('<br>')}
+          `;
           btn.disabled = false;
-          btn.textContent = '確認歸還';
+          btn.textContent = '關閉';
+          btn.onclick = () => this.close();
         }
       },
     };
