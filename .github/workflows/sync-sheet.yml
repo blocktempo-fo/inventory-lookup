@@ -15,21 +15,27 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download CSV from Google Sheets
+      - name: Download main inventory CSV
         run: |
           curl -L "https://docs.google.com/spreadsheets/d/1uQ2i6pbZY-aykeNduv7HtxS1-hl2zL-mKdEjB5gEq-s/export?format=csv&gid=722714951" -o data.csv
 
-      - name: Check file
+      - name: Download bundles CSV (配件包)
         run: |
-          echo "Preview:"
-          head -n 5 data.csv || true
+          curl -L "https://docs.google.com/spreadsheets/d/1uQ2i6pbZY-aykeNduv7HtxS1-hl2zL-mKdEjB5gEq-s/export?format=csv&gid=530248407" -o bundles.csv
+
+      - name: Check files
+        run: |
+          echo "=== data.csv ==="
+          head -n 3 data.csv || true
           test -s data.csv
+          echo "=== bundles.csv ==="
+          head -n 3 bundles.csv || true
 
       - name: Commit updated CSV
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.csv
+          git add data.csv bundles.csv
           git diff --cached --quiet || git commit -m "chore: sync sheet data"
 
       - name: Push changes
