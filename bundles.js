@@ -77,6 +77,16 @@
           if (!this.itemMap[itemId]) this.itemMap[itemId] = [];
           this.itemMap[itemId].push({ groupId, role });
 
+          // 替代品也視為套組成員（讓使用者點電池-2/3 也能看到套組面板）
+          for (const altId of entry.altItemIds) {
+            if (!this.itemMap[altId]) this.itemMap[altId] = [];
+            // 避免重複：只在還沒登記過這個 group 時加
+            const already = this.itemMap[altId].some(m => m.groupId === groupId);
+            if (!already) {
+              this.itemMap[altId].push({ groupId, role, isAlt: true, primaryItemId: itemId });
+            }
+          }
+
           if (role === '主設備') {
             this.anchorMap[itemId] = groupId;
           }
