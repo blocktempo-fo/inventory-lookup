@@ -1,0 +1,42 @@
+套組ID,用途,器材編號,必要性,替代品,說明
+sony-a6400,通用,BT-M-cam-001-01,主設備,,Sony A6400 主機
+sony-a6400,通用,BT-M-cam-001-02,必備,"BT-M-cam-001-03,BT-M-cam-001-04",電池（任一顆）
+sony-a6400,通用,BT-M-sd-002,必備,"BT-M-sd-001,BT-M-sd-003",SD 記憶卡（任一張）
+sony-a6400,通用,BT-M-cam-001-06,推薦,BT-M-cam-001-07,電池充電器
+sony-a6400,通用,BT-M-cam lens-001,推薦,,18-105 變焦鏡頭
+sony-a6400,通用,BT-M-cam parts-001,推薦,BT-M-cam parts-002,相機包
+sony-a6400,通用,BT-M-cam-001-05,選配,,模擬電池（長時間錄影用）
+insta360-one,通用,BT-M-cam-002-01,主設備,,INSTA 360 ONE 主機
+insta360-one,通用,BT-M-cam-002-02,必備,BT-M-cam-002-03,電池（任一顆）
+insta360-one,通用,BT-M-sd-009,必備,"BT-M-sd-005,BT-M-sd-010",microSD 卡
+insta360-one,通用,BT-M-cam-002-06,推薦,,運動相機支架
+insta360-one,通用,BT-M-cam-002-04,推薦,,TAKEWAY 腳架雲台
+insta360-one,通用,BT-M-cam-002-05,推薦,,電池充電器
+insta360-one,通用,BT-M-cam-002-07,選配,,閃傳伴侶（無線傳檔）
+dji-action4,通用,BT-M-cam-003-01,主設備,,DJI Action 4 主機
+dji-action4,通用,BT-M-cam-003-02,必備,"BT-M-cam-003-03,BT-M-cam-003-04",電池（任一顆）
+dji-action4,通用,BT-M-sd-009,必備,"BT-M-sd-005,BT-M-sd-010",microSD 卡
+dji-action4,通用,BT-M-cam-003-05,推薦,,Action 4 支架（含三腳架）
+dji-action4,通用,BT-M-cam-003-07,推薦,,電池充電盒
+dji-action4,通用,BT-M-cam-003-06,選配,,POLYWELL 遙控三腳架
+dji-mavic-air,通用,BT-M-cam-004-01,主設備,,DJI Mavic Air 空拍機
+dji-mavic-air,通用,BT-M-cam-004-02,必備,,遙控器（必備）
+dji-mavic-air,通用,BT-M-cam-004-03,必備,"BT-M-cam-004-04,BT-M-cam-004-05",電池（任一顆，注意電池可能無法過電）
+osmo-pocket-3,通用,BT-VA -095,主設備,,Osmo Pocket 3 主機
+osmo-pocket-3,通用,BT-VA -093,必備,,防護殼
+osmo-pocket-3,通用,BT-M-sd-009,必備,"BT-M-sd-005,BT-M-sd-010",microSD 卡
+osmo-pocket-3,通用,BT-VA -100,推薦,,Osmo 迷你三腳架
+osmo-pocket-3,通用,BT-VA -096,推薦,,廣角鏡
+osmo-pocket-3,通用,BT-VA -099,推薦,,續航手把
+osmo-pocket-3,通用,BT-VA -094,選配,,1/4 螺紋手把
+osmo-pocket-3,通用,BT-VA -092,選配,,收納包
+dji-mic-3,通用,BT-VA -102,主設備,,DJI Mic 3 接收器 RX
+dji-mic-3,通用,BT-VA -101,必備,,發射器 TX（一定要配 RX）
+dji-mic-3,通用,BT-VA -103,推薦,,充電盒
+dji-mic-3,通用,BT-VA -105,推薦,,3.5mm TRS 帶鎖音訊轉接線
+dji-mic-3,通用,BT-VA -104,選配,,收納袋
+podcast-mv7,通用,BT-M-mic-007,主設備,,SHURE MV7 動圈麥克風
+podcast-mv7,通用,BT-M-other-008,必備,,YAMAHA AG06 音效混音器
+podcast-mv7,通用,BT-M-mic-013,必備,,XLR 音源線套組
+podcast-mv7,通用,BT-VA -114,推薦,,Logitech 監聽耳機
+podcast-mv7,通用,BT-M-other-011,選配,,ZOOM H7（錄音備援）

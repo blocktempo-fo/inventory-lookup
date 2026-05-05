@@ -1491,6 +1491,173 @@ select {
   100% { transform: scale(1); }
 }
 
+/* ═══ Bundle Recommendation Section ═══════════════ */
+.bundle-section {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 2px dashed var(--color-border);
+}
+.bundle-header {
+  margin-bottom: 12px;
+}
+.bundle-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-accent);
+  margin-bottom: 4px;
+}
+.bundle-subtitle {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.bundle-body {
+  background: #fafaf7;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 0;
+  margin-bottom: 12px;
+}
+.bundle-group {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+.bundle-group:last-child { border-bottom: none; }
+.bundle-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.bundle-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+.bundle-item:hover { background: rgba(45,106,79,0.04); }
+.bundle-item input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  margin-top: 2px;
+}
+.bundle-item input[type=checkbox]:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.bundle-item-info { flex: 1; min-width: 0; }
+.bundle-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+.bundle-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 11px;
+}
+.bundle-item-id {
+  color: var(--color-text-tertiary);
+}
+.bundle-status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.bundle-status.available { background: #dcfce7; color: #15803d; }
+.bundle-status.borrowed { background: #fef3c7; color: #b45309; }
+.bundle-status.maintenance { background: #fee2e2; color: #b91c1c; }
+.bundle-status.disabled { background: #e5e7eb; color: #6b7280; }
+.bundle-status.unknown { background: #f3f4f6; color: #6b7280; }
+.bundle-alt-tag {
+  font-size: 10px;
+  color: #d97706;
+  background: #fffbeb;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid #fde68a;
+}
+.bundle-item-notes {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.bundle-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+.bundle-count {
+  font-size: 13px;
+  color: #1b4332;
+  font-weight: 500;
+}
+.bundle-count strong { color: var(--color-accent); font-weight: 800; }
+.bundle-borrow-btn {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.bundle-borrow-btn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+.bundle-borrow-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Bundle borrow modal summary list */
+.bundle-summary {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.bundle-summary-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #15803d;
+  margin-bottom: 8px;
+}
+.bundle-summary-title strong { font-size: 16px; }
+.bundle-summary-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: #166534;
+  line-height: 1.7;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.bundle-summary-list .mono { font-size: 11px; color: #15803d; margin-right: 4px; }
+
 /* Centered Success Dialog */
 .success-dialog-overlay {
   position: fixed;

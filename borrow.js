@@ -270,6 +270,228 @@
       },
     };
 
+    // ═══ Bundle Borrow Modal (批次借用多件) ════════════
+    const BundleBorrow = {
+      el: null,
+      items: [],
+      groupId: '',
+
+      init() {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay borrow-modal-overlay';
+        overlay.id = 'bundleBorrowModal';
+        overlay.setAttribute('hidden', '');
+        overlay.innerHTML = `
+          <div class="modal-content borrow-modal-content">
+            <button class="modal-close borrow-close" aria-label="關閉">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="borrow-form-wrap">
+              <h2 class="borrow-form-title">批次借用申請</h2>
+              <div class="bundle-summary" id="bundleBorrowList"></div>
+              <form id="bundleBorrowForm" class="borrow-form">
+                <div class="form-group">
+                  <label for="bbf_name">借用人姓名 <span class="required">*</span></label>
+                  <input type="text" id="bbf_name" required placeholder="你的名字" />
+                </div>
+                <div class="form-group">
+                  <label for="bbf_dept">部門 / 組別 <span class="required">*</span></label>
+                  <input type="text" id="bbf_dept" required placeholder="例如：編輯部" />
+                </div>
+                <div class="form-group">
+                  <label for="bbf_due">預計歸還日期 <span class="required">*</span></label>
+                  <input type="date" id="bbf_due" required />
+                </div>
+                <div class="form-group">
+                  <label for="bbf_purpose">用途</label>
+                  <input type="text" id="bbf_purpose" placeholder="例如：外拍、直播" />
+                </div>
+                <div class="form-group">
+                  <label for="bbf_notes">備註</label>
+                  <textarea id="bbf_notes" rows="2" placeholder="其他備註"></textarea>
+                </div>
+                <div class="borrow-rules">
+                  <div class="borrow-rules-title">📋 借用前請確認</div>
+                  <ul class="borrow-rules-list">
+                    <li>器材歸還時須交給管理員（Kessy）檢查並協助歸位</li>
+                    <li>使用中如遇故障或缺件，請立即聯絡 Kessy 處理</li>
+                    <li>請於預計歸還日前完成歸還，逾期將影響後續借用</li>
+                    <li>器材限公務使用，不得私人外借或轉借他人</li>
+                  </ul>
+                  <label class="borrow-agree">
+                    <input type="checkbox" id="bbf_agree" required />
+                    <span>我已閱讀並同意以上規則</span>
+                  </label>
+                </div>
+                <div class="borrow-form-actions">
+                  <button type="button" class="btn-cancel" id="bundleBorrowCancelBtn">取消</button>
+                  <button type="submit" class="btn-submit" id="bundleBorrowSubmitBtn" disabled>確認借用</button>
+                </div>
+                <div class="borrow-result" id="bundleBorrowResult" hidden></div>
+              </form>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        this.el = overlay;
+
+        overlay.querySelector('.borrow-close').addEventListener('click', () => this.close());
+        overlay.querySelector('#bundleBorrowCancelBtn').addEventListener('click', () => this.close());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) this.close(); });
+        overlay.querySelector('#bundleBorrowForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.submit();
+        });
+
+        const agree = overlay.querySelector('#bbf_agree');
+        const submitBtn = overlay.querySelector('#bundleBorrowSubmitBtn');
+        agree.addEventListener('change', () => { submitBtn.disabled = !agree.checked; });
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        overlay.querySelector('#bbf_due').min = tomorrow.toISOString().split('T')[0];
+      },
+
+      open(items, groupId) {
+        this.items = items;
+        this.groupId = groupId;
+        const list = this.el.querySelector('#bundleBorrowList');
+        list.innerHTML = `
+          <div class="bundle-summary-title">即將借出 <strong>${items.length}</strong> 件器材：</div>
+          <ul class="bundle-summary-list">
+            ${items.map(it => `<li><span class="mono">${app.escapeHtml(it['編號'] || '')}</span> ${app.escapeHtml(it['項目'] || '')}</li>`).join('')}
+          </ul>
+        `;
+        this.el.querySelector('#bundleBorrowForm').reset();
+        this.el.querySelector('#bundleBorrowResult').hidden = true;
+        this.el.querySelector('#bundleBorrowSubmitBtn').disabled = true;
+        this.el.querySelector('#bundleBorrowSubmitBtn').textContent = '確認借用';
+        this.el.querySelector('#bbf_agree').checked = false;
+        this.el.classList.add('is-open');
+        this.el.removeAttribute('hidden');
+        document.body.style.overflow = 'hidden';
+      },
+
+      close() {
+        this.el.classList.remove('is-open');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+          if (!this.el.classList.contains('is-open')) this.el.setAttribute('hidden', '');
+        }, 250);
+      },
+
+      async submit() {
+        const btn = this.el.querySelector('#bundleBorrowSubmitBtn');
+        const resultDiv = this.el.querySelector('#bundleBorrowResult');
+        btn.disabled = true;
+        btn.textContent = `送出中... (0/${this.items.length})`;
+        resultDiv.hidden = true;
+
+        const baseData = {
+          borrower_name: this.el.querySelector('#bbf_name').value.trim(),
+          department: this.el.querySelector('#bbf_dept').value.trim(),
+          due_date: this.el.querySelector('#bbf_due').value,
+          purpose: this.el.querySelector('#bbf_purpose').value.trim(),
+          notes: this.el.querySelector('#bbf_notes').value.trim(),
+          bundle_id: this.groupId + '-' + Date.now(),
+        };
+
+        const successList = [];
+        const failList = [];
+
+        for (let i = 0; i < this.items.length; i++) {
+          const item = this.items[i];
+          btn.textContent = `送出中... (${i + 1}/${this.items.length})`;
+          const data = {
+            ...baseData,
+            item_id: (item['編號'] || '').trim(),
+            item_name: item['項目'] || '',
+            category: item['類別'] || '',
+            location: item['位置'] || '',
+          };
+          const result = await BorrowAPI.borrow(data);
+          if (result.success) {
+            successList.push({ item, loanId: result.loan_id });
+            OptimisticCache.set(data.item_id, {
+              '狀態': '借出中',
+              '借用人': data.borrower_name,
+              '借出日期': new Date().toISOString().split('T')[0],
+              '預計歸還日': data.due_date,
+            });
+          } else {
+            failList.push({ item, message: result.message });
+          }
+        }
+
+        OptimisticCache.apply();
+        app.Modal.close();
+        app.render();
+
+        if (failList.length === 0) {
+          this.close();
+          showBundleSuccessDialog({
+            count: successList.length,
+            items: successList.map(s => s.item),
+            location: this.items[0]?.['位置'] || '',
+            dueDate: baseData.due_date,
+          });
+        } else {
+          resultDiv.hidden = false;
+          resultDiv.className = 'borrow-result error';
+          resultDiv.innerHTML = `
+            <strong>部分失敗</strong><br>
+            成功 ${successList.length} 件 / 失敗 ${failList.length} 件<br>
+            失敗：${failList.map(f => app.escapeHtml((f.item['項目'] || '') + ' (' + f.message + ')')).join('<br>')}
+          `;
+          btn.disabled = false;
+          btn.textContent = '關閉';
+          btn.onclick = () => this.close();
+        }
+      },
+    };
+
+    // 在 init 階段建立 modal，並掛到 window 給 bundles.js 用
+    BundleBorrow.init();
+    window.__bundleBorrow = BundleBorrow;
+
+    // ═══ Bundle Success Dialog ════════════════════════
+    function showBundleSuccessDialog({ count, items, location, dueDate }) {
+      let dialog = document.getElementById('bundleSuccessDialog');
+      if (!dialog) {
+        dialog = document.createElement('div');
+        dialog.id = 'bundleSuccessDialog';
+        dialog.className = 'success-dialog-overlay';
+        dialog.innerHTML = `
+          <div class="success-dialog">
+            <div class="success-dialog-icon">✅</div>
+            <h3 class="success-dialog-title">批次借用成功！</h3>
+            <div class="success-dialog-body" id="bundleSuccessBody"></div>
+            <div class="success-dialog-note" id="bundleSuccessNote"></div>
+            <button type="button" class="success-dialog-btn" id="bundleSuccessOk">確定</button>
+          </div>`;
+        document.body.appendChild(dialog);
+        const close = () => {
+          dialog.classList.remove('is-open');
+          document.body.style.overflow = '';
+        };
+        dialog.querySelector('#bundleSuccessOk').addEventListener('click', close);
+        dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && dialog.classList.contains('is-open')) close();
+        });
+      }
+      dialog.querySelector('#bundleSuccessBody').innerHTML = `
+        <div class="success-row"><span class="success-label">借出件數</span><span><strong>${count}</strong> 件</span></div>
+        <div class="success-row"><span class="success-label">取用位置</span><span>${app.escapeHtml(location)}</span></div>
+        <div class="success-row"><span class="success-label">預計歸還</span><span>${app.escapeHtml(dueDate)}</span></div>
+      `;
+      dialog.querySelector('#bundleSuccessNote').innerHTML = `
+        📍 請至上述位置取用全部 ${count} 件器材<br>
+        🔄 歸還時請聯絡 <strong>Kessy</strong> 統一檢查並協助歸位
+      `;
+      dialog.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+
     // ═══ Centered Success Dialog ═══════════════════════
     function showSuccessDialog({ loanId, itemName, location, dueDate }) {
       let dialog = document.getElementById('borrowSuccessDialog');
