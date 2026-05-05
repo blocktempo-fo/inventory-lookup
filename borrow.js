@@ -270,6 +270,81 @@
       },
     };
 
+    // ═══ Return Bundle Check — 管理員歸還時顯示套組成員狀態 ═══
+    function renderReturnBundleCheck(modalEl, item) {
+      // 移除舊的（防重複）
+      const old = modalEl.querySelector('.return-bundle-check');
+      if (old) old.remove();
+
+      if (!window.__bundles) return;
+      const itemId = (item['編號'] || '').trim();
+      const bundles = window.__bundles.getBundlesForItem(itemId);
+      if (!bundles || bundles.length === 0) return;
+
+      const primary = bundles[0];
+      const groupRows = primary.items;
+      const anchor = primary.anchor;
+
+      // 找每個成員的目前狀態
+      const memberStatuses = groupRows.map(b => {
+        const memberItem = app.state.rows.find(r => (r['編號'] || '').trim() === b.itemId);
+        const status = memberItem ? ((memberItem['狀態'] || '可借用').trim() || '可借用') : '不存在';
+        return {
+          ...b,
+          item: memberItem,
+          status,
+          isCurrent: b.itemId === itemId,
+        };
+      });
+
+      // 計算未還件數（仍是借出中）
+      const stillBorrowed = memberStatuses.filter(m => m.status === '借出中' && !m.isCurrent);
+      const totalBorrowed = memberStatuses.filter(m => m.status === '借出中').length;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'return-bundle-check';
+      wrap.innerHTML = `
+        <div class="return-bundle-title">
+          🔍 套組歸還檢核
+          <span class="return-bundle-anchor">${app.escapeHtml(anchor?.notes || primary.groupId)}</span>
+        </div>
+        <div class="return-bundle-summary">
+          ${stillBorrowed.length === 0
+            ? `<span class="check-ok">✅ 此套組其他配件都已歸還或未借出</span>`
+            : `<span class="check-warn">⚠️ 此套組還有 <strong>${stillBorrowed.length}</strong> 件未還</span>`}
+        </div>
+        <ul class="return-bundle-list">
+          ${memberStatuses.map(m => {
+            const statusClass = {
+              '可借用': 'available',
+              '借出中': 'borrowed',
+              '維修中': 'maintenance',
+              '停用': 'disabled',
+            }[m.status] || 'unknown';
+            const tag = m.isCurrent ? '<span class="bundle-current-tag">📍 正在歸還</span>'
+                      : m.status === '借出中' ? '<span class="check-pending">尚未歸還</span>'
+                      : '';
+            return `
+              <li class="${m.isCurrent ? 'is-current' : ''}">
+                <span class="return-bundle-role">${app.escapeHtml(m.role)}</span>
+                <span class="return-bundle-name">${app.escapeHtml(m.item?.['項目'] || m.itemId)}</span>
+                <span class="bundle-status ${statusClass}">${app.escapeHtml(m.status)}</span>
+                ${tag}
+              </li>`;
+          }).join('')}
+        </ul>
+        ${stillBorrowed.length > 0
+          ? `<div class="return-bundle-hint">💡 請提醒借用人一併歸還其他 ${stillBorrowed.length} 件器材</div>`
+          : ''}
+      `;
+
+      // 插在 summary 之後
+      const summary = modalEl.querySelector('#returnItemSummary');
+      if (summary && summary.parentNode) {
+        summary.parentNode.insertBefore(wrap, summary.nextSibling);
+      }
+    }
+
     // ═══ Bundle Borrow Modal (批次借用多件) ════════════
     const BundleBorrow = {
       el: null,
@@ -625,6 +700,9 @@
           <div class="borrow-summary-row"><span class="borrow-label">編號</span><span class="mono">${app.escapeHtml(item['編號'] || '')}</span></div>
           <div class="borrow-summary-row"><span class="borrow-label">借用人</span><span>${app.escapeHtml(item['借用人'] || '')}</span></div>`;
 
+        // 套組檢核：如果這件器材屬於任何套組，顯示套組成員的當前狀態
+        renderReturnBundleCheck(this.el, item);
+
         this.el.querySelector('#returnForm').reset();
         this.el.querySelector('#returnResult').hidden = true;
         this.el.querySelector('#returnSubmitBtn').disabled = false;
@@ -895,6 +973,10 @@
       ReturnModal.init();
       injectBorrowButton();
       setupAdminMode();
+
+      // 暴露給 bundles.js 用
+      window.__borrowModal = BorrowModal;
+      window.__returnModal = ReturnModal;
 
       // 跨分頁同步
       setupCrossTabSync();

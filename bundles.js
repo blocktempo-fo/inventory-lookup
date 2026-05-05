@@ -28,6 +28,8 @@
     const Bundles = {
       // group_id → array of bundle rows
       groups: {},
+      // item_id → array of { groupId, role } — 反向索引（一個 item 可在多個套組）
+      itemMap: {},
       // anchor item_id → group_id
       anchorMap: {},
 
@@ -49,7 +51,7 @@
         });
       },
 
-      // 把 rows 整理成 groups 與 anchor lookup
+      // 把 rows 整理成 groups + itemMap + anchorMap
       process(rows) {
         for (const row of rows) {
           const groupId = (row['套組ID'] || '').trim();
@@ -72,21 +74,25 @@
           if (!this.groups[groupId]) this.groups[groupId] = [];
           this.groups[groupId].push(entry);
 
+          if (!this.itemMap[itemId]) this.itemMap[itemId] = [];
+          this.itemMap[itemId].push({ groupId, role });
+
           if (role === '主設備') {
             this.anchorMap[itemId] = groupId;
           }
         }
       },
 
-      // 依 item_id 取得它所屬的套組（如果它是 anchor）
-      getBundleByAnchor(itemId) {
+      // 依 item_id 取得它所屬的所有套組（不限 anchor）
+      getBundlesForItem(itemId) {
         const cleanId = (itemId || '').trim();
-        const groupId = this.anchorMap[cleanId];
-        if (!groupId) return null;
-        return {
-          groupId,
-          items: this.groups[groupId] || [],
-        };
+        const memberships = this.itemMap[cleanId] || [];
+        return memberships.map(m => ({
+          groupId: m.groupId,
+          role: m.role,
+          items: this.groups[m.groupId] || [],
+          anchor: (this.groups[m.groupId] || []).find(b => b.role === '主設備'),
+        }));
       },
     };
 
@@ -110,73 +116,106 @@
     // 排序：主設備 > 必備 > 推薦 > 選配
     const ROLE_ORDER = { '主設備': 0, '必備': 1, '推薦': 2, '選配': 3 };
 
-    // ═══ 渲染推薦區塊 ═══════════════════════════════
-    function renderBundleSection(anchorItem) {
-      const bundle = Bundles.getBundleByAnchor(anchorItem['編號']);
-      if (!bundle) return null;
-
-      // 排除 anchor 自己，依角色排序
-      const others = bundle.items
-        .filter(b => b.role !== '主設備')
-        .sort((a, b) => {
-          const ra = ROLE_ORDER[a.role] ?? 99;
-          const rb = ROLE_ORDER[b.role] ?? 99;
-          return ra - rb;
-        });
-
-      if (others.length === 0) return null;
-
-      // 依角色分組
-      const byRole = { '必備': [], '推薦': [], '選配': [] };
-      for (const b of others) {
-        if (byRole[b.role]) byRole[b.role].push(b);
+    // 取得套組成員的狀態資訊（含替代品 fallback）
+    function buildBundleRow(b) {
+      const item = findItemById(b.itemId);
+      const status = item ? ((item['狀態'] || '可借用').trim() || '可借用') : '不存在';
+      let usedAlt = null;
+      if (item && status !== '可借用' && b.altItemIds.length > 0) {
+        usedAlt = findFirstAvailable(b.altItemIds);
       }
+      return { config: b, item, status, usedAlt };
+    }
 
-      // 為每個項目找實際的 item 資料 + 替代品狀態
-      function buildRow(b) {
-        const item = findItemById(b.itemId);
-        const status = item ? ((item['狀態'] || '可借用').trim() || '可借用') : '不存在';
-        let usedAlt = null;
-        if (item && status !== '可借用' && b.altItemIds.length > 0) {
-          usedAlt = findFirstAvailable(b.altItemIds);
-        }
-        return { config: b, item, status, usedAlt };
-      }
+    // 取得單個套組的所有成員資料 (含 anchor)
+    function getBundleAllRows(bundle) {
+      return bundle.items
+        .slice()
+        .sort((a, b) => (ROLE_ORDER[a.role] ?? 99) - (ROLE_ORDER[b.role] ?? 99))
+        .map(buildBundleRow);
+    }
 
-      const requiredRows = byRole['必備'].map(buildRow);
-      const recommendedRows = byRole['推薦'].map(buildRow);
-      const optionalRows = byRole['選配'].map(buildRow);
+    // ═══ 渲染推薦區塊（通用版 — 不限 anchor）═══════════
+    function renderBundleSection(currentItem) {
+      const cleanCurrentId = (currentItem['編號'] || '').trim();
+      const bundles = Bundles.getBundlesForItem(cleanCurrentId);
+      if (!bundles || bundles.length === 0) return null;
 
-      const totalCount = requiredRows.length + recommendedRows.length + optionalRows.length;
-
-      // ── 渲染 HTML ──
       const wrap = document.createElement('div');
       wrap.className = 'bundle-section';
+
+      // V1：如果有多個套組，先渲染第一個（之後可加 tab 切換）
+      // 為了實用性，優先選 anchor 套組（如果使用者點的就是 anchor）
+      const primary = bundles.find(b => b.anchor && b.anchor.itemId === cleanCurrentId) || bundles[0];
+
+      const rows = getBundleAllRows(primary);
+      const anchorRow = rows.find(r => r.config.role === '主設備');
+      const totalCount = rows.length;
+      const availCount = rows.filter(r => r.status === '可借用' || r.usedAlt).length;
+
+      // 入口角色（決定預設勾選邏輯）
+      const entryRole = primary.role; // '主設備' / '必備' / '推薦' / '選配'
+
+      // 標題：根據入口顯示不同 tone
+      const anchorName = anchorRow?.item?.['項目'] || primary.groupId;
+      let titleText, subtitleText;
+      if (entryRole === '主設備') {
+        titleText = '📦 一併借用建議';
+        subtitleText = `這台${escapeHtml(anchorName)}通常會搭配以下 ${totalCount - 1} 件配件`;
+      } else {
+        titleText = '📦 屬於套組';
+        subtitleText = `這件器材是「${escapeHtml(anchorName)}」套組的一部分`;
+      }
+
       wrap.innerHTML = `
         <div class="bundle-header">
-          <div class="bundle-title">📦 一併借用建議</div>
-          <div class="bundle-subtitle">這台${escapeHtml(anchorItem['項目'] || '')}通常會搭配以下 ${totalCount} 件配件</div>
+          <div class="bundle-title">${titleText}</div>
+          <div class="bundle-subtitle">${subtitleText}</div>
         </div>
+        ${bundles.length > 1 ? renderBundleTabs(bundles, primary.groupId) : ''}
         <div class="bundle-body" id="bundleBody"></div>
         <div class="bundle-footer">
-          <span class="bundle-count">已選 <strong id="bundleSelectedCount">0</strong> 件 + 主設備 = 共 <strong id="bundleTotalCount">1</strong> 件</span>
-          <button type="button" class="bundle-borrow-btn" id="bundleBorrowBtn" disabled>一併借用</button>
+          <div class="bundle-stats">
+            <span>共 <strong>${totalCount}</strong> 件</span>
+            <span class="sep">｜</span>
+            <span>你選了 <strong id="bundleSelectedCount">0</strong> 件</span>
+            <span class="sep">｜</span>
+            <span>套組可借 <strong>${availCount}</strong>/<strong>${totalCount}</strong></span>
+          </div>
+          <div class="bundle-actions">
+            <button type="button" class="bundle-borrow-btn" id="bundleBorrowBtn" disabled>借用所選</button>
+          </div>
         </div>
       `;
 
       const body = wrap.querySelector('#bundleBody');
-      if (requiredRows.length) body.appendChild(buildGroup('必備', '★', '#b91c1c', requiredRows, true));
-      if (recommendedRows.length) body.appendChild(buildGroup('推薦', '☆', '#d97706', recommendedRows, true));
-      if (optionalRows.length) body.appendChild(buildGroup('選配', '○', '#6b7280', optionalRows, false));
+
+      // 分組渲染（主設備永遠在最上面）
+      const byRole = { '主設備': [], '必備': [], '推薦': [], '選配': [] };
+      for (const r of rows) {
+        if (byRole[r.config.role]) byRole[r.config.role].push(r);
+      }
+
+      const groupConfigs = [
+        { role: '主設備', label: '主設備', icon: '🎯', color: '#1b4332' },
+        { role: '必備',   label: '必備',   icon: '★', color: '#b91c1c' },
+        { role: '推薦',   label: '推薦',   icon: '☆', color: '#d97706' },
+        { role: '選配',   label: '選配',   icon: '○', color: '#6b7280' },
+      ];
+
+      for (const cfg of groupConfigs) {
+        const grpRows = byRole[cfg.role];
+        if (!grpRows.length) continue;
+        body.appendChild(buildGroup(cfg, grpRows, entryRole, cleanCurrentId));
+      }
 
       // ── 計數 + 按鈕 ──
       const updateCount = () => {
         const selected = wrap.querySelectorAll('.bundle-item input[type=checkbox]:checked').length;
         wrap.querySelector('#bundleSelectedCount').textContent = selected;
-        wrap.querySelector('#bundleTotalCount').textContent = selected + 1;
         const btn = wrap.querySelector('#bundleBorrowBtn');
         btn.disabled = selected === 0;
-        btn.textContent = selected === 0 ? '請至少選一件配件' : `一併借用 ${selected + 1} 件`;
+        btn.textContent = selected === 0 ? '請至少勾選 1 件' : (selected === 1 ? '借用 1 件' : `借用所選 ${selected} 件`);
       };
 
       wrap.addEventListener('change', (e) => {
@@ -184,46 +223,74 @@
       });
       updateCount();
 
-      // ── 一併借用按鈕 ──
+      // ── 借用按鈕 ──
       wrap.querySelector('#bundleBorrowBtn').addEventListener('click', () => {
         const checked = Array.from(wrap.querySelectorAll('.bundle-item input[type=checkbox]:checked'));
-        const items = [anchorItem]
-          .concat(checked.map(cb => findItemById(cb.dataset.itemId)).filter(Boolean));
-        // 檢查必備是否漏選
-        const requiredMissing = requiredRows.filter(r => {
-          const cb = wrap.querySelector(`input[data-item-id="${cssEscape(r.config.itemId)}"]`);
-          return cb && !cb.checked && (r.status === '可借用' || r.usedAlt);
+        const items = checked.map(cb => findItemById(cb.dataset.itemId)).filter(Boolean);
+        if (items.length === 0) return;
+
+        // 檢查必備或主設備是否漏勾（且該配件有可借的）
+        const checkedIds = new Set(checked.map(cb => cb.dataset.itemId));
+        const missing = rows.filter(r => {
+          if (r.config.role !== '必備' && r.config.role !== '主設備') return false;
+          const displayId = (r.status === '可借用') ? r.config.itemId : (r.usedAlt?.['編號'] || '');
+          if (!displayId) return false;
+          if (checkedIds.has(displayId)) return false;
+          return r.status === '可借用' || !!r.usedAlt;
         });
-        if (requiredMissing.length > 0) {
-          const names = requiredMissing.map(r => r.config.notes || (findItemById(r.config.itemId)?.['項目']) || r.config.itemId).join('、');
-          if (!confirm(`⚠️ 你沒有勾選以下必備配件：\n${names}\n\n沒有它們可能無法正常使用，仍要繼續嗎？`)) return;
+
+        if (missing.length > 0) {
+          const names = missing.map(r => {
+            const itemName = findItemById(r.config.itemId)?.['項目'] || r.config.itemId;
+            return `${r.config.role === '主設備' ? '【主設備】' : '【必備】'}${itemName}`;
+          }).join('\n');
+          if (!confirm(`⚠️ 你沒有勾選以下重要器材：\n\n${names}\n\n沒有它們可能無法正常使用，仍要繼續嗎？`)) return;
         }
-        // 開啟批次借用 modal（在 borrow.js 中）
-        if (window.__bundleBorrow) {
-          window.__bundleBorrow.open(items, bundle.groupId);
+
+        // 單借 vs 批次借
+        if (items.length === 1) {
+          // 單件 → 開原本的 BorrowModal
+          if (window.__borrowModal) window.__borrowModal.open(items[0]);
+        } else {
+          // 多件 → 開 BundleBorrow
+          if (window.__bundleBorrow) window.__bundleBorrow.open(items, primary.groupId);
         }
       });
 
       return wrap;
     }
 
-    // 建立一個分組
-    function buildGroup(label, icon, color, rows, defaultChecked) {
+    // 多套組時的 tab 切換（V2 placeholder — 暫先呈現）
+    function renderBundleTabs(bundles, activeGroupId) {
+      return `
+        <div class="bundle-tabs">
+          ${bundles.map(b => `
+            <span class="bundle-tab ${b.groupId === activeGroupId ? 'active' : ''}">
+              ${escapeHtml(b.anchor?.notes || b.groupId)}
+            </span>
+          `).join('')}
+          <span class="bundle-tabs-hint">（這件器材屬於 ${bundles.length} 個套組）</span>
+        </div>
+      `;
+    }
+
+    // 建立一個分組（含主設備）
+    function buildGroup(cfg, rows, entryRole, currentItemId) {
       const grp = document.createElement('div');
-      grp.className = 'bundle-group';
+      grp.className = `bundle-group bundle-group-${cfg.role === '主設備' ? 'anchor' : cfg.role}`;
       grp.innerHTML = `
-        <div class="bundle-group-title" style="color:${color}">
-          <span>${icon}</span> ${escapeHtml(label)} (${rows.length})
+        <div class="bundle-group-title" style="color:${cfg.color}">
+          <span>${cfg.icon}</span> ${escapeHtml(cfg.label)} (${rows.length})
         </div>
       `;
       for (const r of rows) {
-        grp.appendChild(buildItemRow(r, defaultChecked));
+        grp.appendChild(buildItemRow(r, entryRole, currentItemId));
       }
       return grp;
     }
 
     // 建立一行配件
-    function buildItemRow({ config, item, status, usedAlt }, defaultChecked) {
+    function buildItemRow({ config, item, status, usedAlt }, entryRole, currentItemId) {
       const row = document.createElement('label');
       row.className = 'bundle-item';
 
@@ -233,9 +300,22 @@
       const displayName = displayItem ? displayItem['項目'] : config.notes;
       const displayStatus = displayItem ? ((displayItem['狀態'] || '可借用').trim() || '可借用') : '不存在';
 
-      // 不可借用 (借出中/維修中) 且沒有替代品 → 不可勾
+      const isCurrent = (config.itemId === currentItemId) || (displayId === currentItemId);
       const unavailable = displayStatus !== '可借用';
-      const isChecked = defaultChecked && !unavailable;
+
+      // 預設勾選邏輯：
+      // - 入口=主設備：必備+推薦勾，選配不勾
+      // - 入口=必備/推薦/選配：只勾自己 + 主設備（若可借）
+      let isChecked = false;
+      if (entryRole === '主設備') {
+        isChecked = (config.role === '主設備' || config.role === '必備' || config.role === '推薦');
+      } else {
+        isChecked = isCurrent || config.role === '主設備';
+      }
+      if (unavailable) isChecked = false;
+
+      if (isCurrent) row.classList.add('is-current');
+      if (config.role === '主設備') row.classList.add('is-anchor');
 
       const statusClass = {
         '可借用': 'available',
@@ -250,11 +330,14 @@
                ${isChecked ? 'checked' : ''}
                ${unavailable ? 'disabled' : ''} />
         <div class="bundle-item-info">
-          <div class="bundle-item-name">${escapeHtml(displayName || '')}</div>
+          <div class="bundle-item-name">
+            ${escapeHtml(displayName || '')}
+            ${isCurrent ? '<span class="bundle-current-tag">📍 你正在看這個</span>' : ''}
+          </div>
           <div class="bundle-item-meta">
             <span class="bundle-item-id mono">${escapeHtml(displayId)}</span>
             <span class="bundle-status ${statusClass}">${escapeHtml(displayStatus)}</span>
-            ${(status !== '可借用' && usedAlt) ? '<span class="bundle-alt-tag">↳ 替代品</span>' : ''}
+            ${(status !== '可借用' && usedAlt) ? `<span class="bundle-alt-tag">↳ 替代品（原 ${escapeHtml(config.itemId)} 不可用）</span>` : ''}
           </div>
           ${config.notes ? `<div class="bundle-item-notes">${escapeHtml(config.notes)}</div>` : ''}
         </div>
