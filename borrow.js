@@ -182,10 +182,8 @@
           submitBtn.disabled = !agreeCheckbox.checked;
         });
 
-        // Set min date to tomorrow
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        overlay.querySelector('#bf_due').min = tomorrow.toISOString().split('T')[0];
+        // Set min date to today (allow same-day return)
+        overlay.querySelector('#bf_due').min = new Date().toISOString().split('T')[0];
       },
 
       open(item) {
@@ -509,9 +507,8 @@
         const submitBtn = overlay.querySelector('#bundleBorrowSubmitBtn');
         agree.addEventListener('change', () => { submitBtn.disabled = !agree.checked; });
 
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        overlay.querySelector('#bbf_due').min = tomorrow.toISOString().split('T')[0];
+        // Allow same-day return
+        overlay.querySelector('#bbf_due').min = new Date().toISOString().split('T')[0];
       },
 
       open(items, groupId) {
@@ -519,10 +516,21 @@
         this.groupId = groupId;
         const list = this.el.querySelector('#bundleBorrowList');
         list.innerHTML = `
-          <div class="bundle-summary-title">即將借出 <strong>${items.length}</strong> 件器材：</div>
-          <ul class="bundle-summary-list">
-            ${items.map(it => `<li><span class="mono">${app.escapeHtml(it['編號'] || '')}</span> ${app.escapeHtml(it['項目'] || '')}</li>`).join('')}
-          </ul>
+          <div class="bundle-summary-title">📋 即將借出 <strong>${items.length}</strong> 件器材</div>
+          <div class="bundle-summary-cards">
+            ${items.map((it, i) => `
+              <div class="bundle-summary-card">
+                <span class="bundle-summary-num">${i + 1}</span>
+                <div class="bundle-summary-info">
+                  <div class="bundle-summary-name">${app.escapeHtml(it['項目'] || '')}</div>
+                  <div class="bundle-summary-meta">
+                    <span class="mono">${app.escapeHtml((it['編號'] || '').trim())}</span>
+                    <span class="bundle-summary-loc">📍 ${app.escapeHtml(it['位置'] || '')}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
         `;
         this.el.querySelector('#bundleBorrowForm').reset();
         this.el.querySelector('#bundleBorrowResult').hidden = true;
