@@ -7,27 +7,63 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>器材檢索表</title>
-  <link rel="stylesheet" href="style.css?v=15" />
+  <title>動區器材查找與借用系統</title>
+  <link rel="stylesheet" href="style.css?v=16" />
 </head>
 <body>
   <div class="app">
-    <!-- Header — title + flow guide + stats -->
+    <!-- Header -->
     <header class="app-header">
-      <h1>器材檢索表</h1>
-      <p class="app-flow">
-        <span class="flow-step"><span class="flow-num">1</span>查詢器材位置與狀態</span>
-        <span class="flow-arrow">›</span>
-        <span class="flow-step"><span class="flow-num">2</span>點卡片查看詳情</span>
-        <span class="flow-arrow">›</span>
-        <span class="flow-step"><span class="flow-num">3</span>按「我要借用」填表單</span>
-      </p>
+      <h1>動區器材查找與借用系統</h1>
       <p class="app-stats-line">
         共 <strong id="totalCount">0</strong> 件器材
         · <strong id="categoryCount">0</strong> 個類別
         · 目前顯示 <strong id="visibleCount">0</strong> 件
+        <button type="button" class="how-to-btn" id="howToBtn">使用說明</button>
       </p>
     </header>
+
+    <!-- How-to popup (first visit) -->
+    <div class="howto-overlay" id="howtoOverlay" hidden>
+      <div class="howto-dialog">
+        <button class="howto-close" id="howtoClose" aria-label="關閉">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <h2 class="howto-title">👋 歡迎使用</h2>
+        <p class="howto-subtitle">動區器材查找與借用系統</p>
+        <div class="howto-steps">
+          <div class="howto-step">
+            <span class="howto-num">1</span>
+            <div>
+              <strong>查詢器材</strong>
+              <p>依分類 / 位置瀏覽，或直接搜尋名稱</p>
+            </div>
+          </div>
+          <div class="howto-step">
+            <span class="howto-num">2</span>
+            <div>
+              <strong>點卡片查看詳情</strong>
+              <p>確認位置、狀態、相關套組</p>
+            </div>
+          </div>
+          <div class="howto-step">
+            <span class="howto-num">3</span>
+            <div>
+              <strong>按「我要借用」填表單</strong>
+              <p>姓名、部門、預計歸還日，送出即可</p>
+            </div>
+          </div>
+          <div class="howto-step howto-step-key">
+            <span class="howto-num">!</span>
+            <div>
+              <strong>歸還</strong>
+              <p>務必親自交給 Kessy 檢查歸位，不可自行放回</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="howto-ok" id="howtoOk">我知道了</button>
+      </div>
+    </div>
 
     <!-- Mode toggle — most prominent (highest hierarchy) -->
     <nav class="mode-nav" aria-label="瀏覽模式">
@@ -94,7 +130,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js?v=10"></script>
-  <script src="borrow.js?v=15"></script>
+  <script src="borrow.js?v=16"></script>
   <script src="bundles.js?v=4"></script>
 </body>
 </html>

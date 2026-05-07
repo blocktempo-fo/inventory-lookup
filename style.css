@@ -103,54 +103,160 @@ body {
   font-weight: 700;
 }
 
-/* Flow guide — explains usage */
-.app-flow {
-  margin: 12px 0 0;
-  padding: 10px 14px;
-  background: var(--color-accent-soft);
-  border: 1px solid #c5dccd;
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #1b4332;
-}
-.flow-step {
+/* How-to button in header stats line */
+.how-to-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  padding: 4px 10px;
+  margin-left: 8px;
+  background: var(--color-accent-soft);
+  border: 1px solid #c5dccd;
+  border-radius: 999px;
+  color: #1b4332;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  width: auto;
+  transition: all var(--transition-fast);
 }
-.flow-num {
+.how-to-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+.how-to-btn::before {
+  content: '💡';
+  font-size: 13px;
+}
+
+/* How-to overlay (first-visit popup) */
+.howto-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.howto-overlay.is-open {
+  display: flex;
+  animation: fade-in 0.2s ease-out;
+}
+.howto-dialog {
+  position: relative;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  padding: 32px 24px 24px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: pop-in 0.3s ease-out;
+}
+.howto-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 0;
+}
+.howto-close:hover { background: #e5e7eb; color: var(--color-text); }
+.howto-title {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+.howto-subtitle {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+.howto-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.howto-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+  border: 1px solid #c5dccd;
+}
+.howto-step strong {
+  display: block;
+  font-size: 15px;
+  color: #1b4332;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.howto-step p {
+  margin: 0;
+  font-size: 13px;
+  color: #2d6a4f;
+  line-height: 1.5;
+}
+.howto-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  font-size: 16px;
+  font-weight: 800;
+}
+.howto-step-key {
+  background: #fef9c3;
+  border-color: #fde047;
+}
+.howto-step-key strong { color: #854d0e; }
+.howto-step-key p { color: #92400e; font-weight: 500; }
+.howto-step-key .howto-num {
+  background: #d97706;
+}
+.howto-ok {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
   background: var(--color-accent);
   color: #fff;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.flow-arrow {
-  color: var(--color-accent);
-  font-weight: 700;
   font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
-@media (max-width: 600px) {
-  .app-flow {
-    font-size: 12px;
-    padding: 8px 10px;
-    gap: 4px;
-  }
-  .flow-num {
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
-  }
+.howto-ok:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* Quick filter checkbox */
