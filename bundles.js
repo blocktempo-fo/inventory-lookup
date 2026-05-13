@@ -392,6 +392,8 @@
     }
 
     // ═══ 注入到詳情 Modal ═══════════════════════════
+    const isAdmin = new URLSearchParams(window.location.search).get('mode') === 'admin';
+
     function injectBundleSection() {
       const detailModal = document.querySelector('#detailModal');
       if (!detailModal) return;
@@ -408,6 +410,13 @@
 
         const item = app.Modal && app.Modal.currentItem;
         if (!item) return;
+
+        // Admin 模式：借出中的器材不顯示借用版套組面板（會跟 ReturnModal 衝突）
+        // ReturnModal 內部本來就有套組批次歸還的勾選 UI
+        if (isAdmin) {
+          const status = (item['狀態'] || '').trim();
+          if (status === '借出中') return;
+        }
 
         const section = renderBundleSection(item);
         if (section) modalInfo.appendChild(section);
