@@ -1011,7 +1011,6 @@
       overlay.classList.remove('is-open');
       overlay.setAttribute('hidden', '');
       document.body.style.overflow = '';
-      try { localStorage.setItem('howtoSeen', '1'); } catch {}
     };
 
     okBtn?.addEventListener('click', close);
@@ -1022,12 +1021,8 @@
     });
     triggerBtn?.addEventListener('click', open);
 
-    // Auto-show on first visit
-    try {
-      if (!localStorage.getItem('howtoSeen')) {
-        setTimeout(open, 600);
-      }
-    } catch {}
+    // Auto-show every page load (refresh = re-show)
+    setTimeout(open, 600);
   }
 
   // ── Init ──────────────────────────────────────────
