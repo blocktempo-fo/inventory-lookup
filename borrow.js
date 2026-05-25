@@ -46,6 +46,13 @@
         localStorage.setItem(this.KEY, JSON.stringify(overrides));
       },
 
+      // 撤回某個 item 的 optimistic update（API 失敗時用）
+      clear(itemId) {
+        const overrides = this.get();
+        delete overrides[itemId];
+        localStorage.setItem(this.KEY, JSON.stringify(overrides));
+      },
+
       // 把快取套用到 state.rows
       apply() {
         const overrides = this.get();
@@ -227,7 +234,7 @@
         const btn = this.el.querySelector('#borrowSubmitBtn');
         const resultDiv = this.el.querySelector('#borrowResult');
         btn.disabled = true;
-        btn.textContent = '送出中...';
+        btn.innerHTML = `<span class="spinner"></span>送出中...`;
         resultDiv.hidden = true;
 
         const data = {
@@ -242,18 +249,19 @@
           notes: this.el.querySelector('#bf_notes').value.trim(),
         };
 
+        // 樂觀更新：立刻反映 UI（即使 API 還沒回來）
+        OptimisticCache.set(data.item_id, {
+          '狀態': '借出中',
+          '借用人': data.borrower_name,
+          '借出日期': new Date().toISOString().split('T')[0],
+          '預計歸還日': data.due_date,
+        });
+        OptimisticCache.apply();
+        app.render();
+
         const result = await BorrowAPI.borrow(data);
 
         if (result.success) {
-          // Optimistic update
-          OptimisticCache.set(data.item_id, {
-            '狀態': '借出中',
-            '借用人': data.borrower_name,
-            '借出日期': new Date().toISOString().split('T')[0],
-            '預計歸還日': data.due_date,
-          });
-          OptimisticCache.apply();
-
           // Close borrow modal + detail modal
           this.close();
           app.Modal.close();
@@ -268,6 +276,11 @@
           });
           return;
         } else {
+          // 失敗：撤回 optimistic cache
+          OptimisticCache.clear(data.item_id);
+          OptimisticCache.apply();
+          app.render();
+
           resultDiv.hidden = false;
           resultDiv.className = 'borrow-result error';
           resultDiv.textContent = result.message || '借用失敗';
@@ -556,7 +569,7 @@
         const btn = this.el.querySelector('#bundleBorrowSubmitBtn');
         const resultDiv = this.el.querySelector('#bundleBorrowResult');
         btn.disabled = true;
-        btn.textContent = `送出中... (0/${this.items.length})`;
+        btn.innerHTML = `<span class="spinner"></span>送出中...`;
         resultDiv.hidden = true;
 
         const baseData = {
@@ -568,12 +581,21 @@
           bundle_id: this.groupId + '-' + Date.now(),
         };
 
-        const successList = [];
-        const failList = [];
+        // 樂觀更新 — 立刻更新本地狀態，讓 UI 馬上反映
+        const today = new Date().toISOString().split('T')[0];
+        for (const item of this.items) {
+          OptimisticCache.set((item['編號'] || '').trim(), {
+            '狀態': '借出中',
+            '借用人': baseData.borrower_name,
+            '借出日期': today,
+            '預計歸還日': baseData.due_date,
+          });
+        }
+        OptimisticCache.apply();
+        app.render();
 
-        for (let i = 0; i < this.items.length; i++) {
-          const item = this.items[i];
-          btn.textContent = `送出中... (${i + 1}/${this.items.length})`;
+        // 平行發送所有 API 請求（不再序列等待）
+        const results = await Promise.all(this.items.map(item => {
           const data = {
             ...baseData,
             item_id: (item['編號'] || '').trim(),
@@ -581,20 +603,16 @@
             category: item['類別'] || '',
             location: item['位置'] || '',
           };
-          const result = await BorrowAPI.borrow(data);
-          if (result.success) {
-            successList.push({ item, loanId: result.loan_id });
-            OptimisticCache.set(data.item_id, {
-              '狀態': '借出中',
-              '借用人': data.borrower_name,
-              '借出日期': new Date().toISOString().split('T')[0],
-              '預計歸還日': data.due_date,
-            });
-          } else {
-            failList.push({ item, message: result.message });
-          }
-        }
+          return BorrowAPI.borrow(data).then(r => ({ item, ...r }));
+        }));
 
+        const successList = results.filter(r => r.success).map(r => ({ item: r.item, loanId: r.loan_id }));
+        const failList = results.filter(r => !r.success).map(r => ({ item: r.item, message: r.message }));
+
+        // 失敗的撤回 optimistic cache
+        for (const f of failList) {
+          OptimisticCache.clear((f.item['編號'] || '').trim());
+        }
         OptimisticCache.apply();
         app.Modal.close();
         app.render();
@@ -839,6 +857,7 @@
         }
 
         btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span>處理中...`;
         resultDiv.hidden = true;
 
         const getRadio = (name) => this.el.querySelector(`input[name="${name}"]:checked`)?.value === 'true';
@@ -850,13 +869,22 @@
         const result = allOk ? '正常' : ((!accessories) ? '缺件' : '損壞');
         const damageNote = this.el.querySelector('#rf_damage').value.trim();
 
-        const successList = [];
-        const failList = [];
+        // 樂觀更新：先把本地狀態改成歸還後
+        for (const id of itemIds) {
+          OptimisticCache.set(id, {
+            '狀態': allOk ? '可借用' : '維修中',
+            '借用人': '',
+            '借出日期': '',
+            '預計歸還日': '',
+          });
+        }
+        OptimisticCache.apply();
+        app.render();
 
-        for (let i = 0; i < itemIds.length; i++) {
-          btn.textContent = `處理中... (${i + 1}/${itemIds.length})`;
+        // 平行發送所有歸還請求
+        const results = await Promise.all(itemIds.map(id => {
           const data = {
-            item_id: itemIds[i],
+            item_id: id,
             checker: '管理者',
             appearance_ok: appearance,
             function_ok: func,
@@ -865,20 +893,16 @@
             damage_note: damageNote,
             result,
           };
-          const apiResult = await BorrowAPI.return_(data);
-          if (apiResult.success) {
-            successList.push(itemIds[i]);
-            OptimisticCache.set(itemIds[i], {
-              '狀態': allOk ? '可借用' : '維修中',
-              '借用人': '',
-              '借出日期': '',
-              '預計歸還日': '',
-            });
-          } else {
-            failList.push({ id: itemIds[i], message: apiResult.message });
-          }
-        }
+          return BorrowAPI.return_(data).then(r => ({ id, ...r }));
+        }));
 
+        const successList = results.filter(r => r.success).map(r => r.id);
+        const failList = results.filter(r => !r.success).map(r => ({ id: r.id, message: r.message }));
+
+        // 失敗的撤回 optimistic cache
+        for (const f of failList) {
+          OptimisticCache.clear(f.id);
+        }
         OptimisticCache.apply();
         app.Modal.close();
         app.render();
