@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>動區器材借用系統 — 試行期分析報告</title>
+<style>
+  @page { size: A4; margin: 18mm; }
+  body { font-family: 'Helvetica Neue', Arial, 'PingFang TC', sans-serif; max-width: 760px; margin: 30px auto; padding: 0 24px; color: #222; line-height: 1.4; font-size: 12.5px; }
+  h1 { font-size: 18px; border-bottom: 2px solid #2d6a4f; padding-bottom: 4px; margin: 0 0 6px; }
+  h2 { font-size: 13.5px; color: #1b4332; margin: 14px 0 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 12px; }
+  th, td { border: 1px solid #888; padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: #e1efe7; font-weight: 700; }
+  ul, ol { margin: 4px 0 6px 20px; padding: 0; }
+  li { margin-bottom: 2px; }
+  p { margin: 4px 0; }
+  .meta { color: #555; margin-bottom: 12px; font-size: 12px; }
+  hr { border: none; border-top: 1px solid #ccc; margin: 10px 0; }
+  blockquote { border-left: 3px solid #2d6a4f; margin: 6px 0; padding: 2px 12px; background: #f5fbf7; color: #1b4332; font-size: 12.5px; }
+  .instructions {
+    background: #fef9c3; border: 1px solid #fde047; padding: 10px 14px;
+    border-radius: 6px; margin: 16px 0; font-size: 12px; color: #713f12;
+  }
+  @media print { .instructions { display: none; } body { margin: 0; padding: 0; } }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  <strong>📋 貼到 Google Docs 步驟：</strong>
+  Cmd+A 全選 → Cmd+C → 打開 Docs → Cmd+V（一般貼上，不要用 Cmd+Shift+V）→ 表格會帶過去
+</div>
+
+<h1>動區器材借用系統 — 試行期分析報告</h1>
+
+<p class="meta">期間：2026/04/13 – 05/08（約 3.5 週）&nbsp; | &nbsp; 負責人：Kessy（@cheunghy305）</p>
+
+<h2>一、試行期概況</h2>
+<ul>
+  <li>已登記 115 件器材、12 套組（涵蓋 60+ 件配件關聯）</li>
+  <li>功能運作正常：查詢 / 篩選 / 借用 / 歸還 / 套組推薦 / 替代品 / 批次處理</li>
+  <li>手機與電腦雙端皆可使用，跨分頁即時同步</li>
+</ul>
+
+<h2>二、收到的回饋與已改進事項</h2>
+
+<table>
+  <thead>
+    <tr><th>回饋</th><th>原因分析</th><th>已採取改進</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>借用 / 歸還流程載入太慢</td>
+      <td>批次借用為序列發送 API（6 件 ≈ 18 秒）；UI 凍結等回應</td>
+      <td>改為 Promise.all 平行發送 + 樂觀更新（UI 即時反映）+ spinner 動畫；體感從 18s 降至 &lt; 1s</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>三、試行期觀察到的根本問題</h2>
+
+<p>除了上述具體回饋，試行期最關鍵的發現是：<strong>仍有人不填表就直接拿器材</strong>。</p>
+
+<p>這不是工具的 bug，而是行為層面：</p>
+
+<table>
+  <thead>
+    <tr><th>原因</th><th>解法方向</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>急用，直接拿走</td><td>改變取用動線</td></tr>
+    <tr><td>「等等再補填」，後來忘記</td><td>讓登記發生在取用之前</td></tr>
+    <tr><td>沒有被擋下的經驗</td><td>不填就拿不到</td></tr>
+  </tbody>
+</table>
+
+<p>填寫成本已壓到最低（30 秒可完成、套組一鍵借），剩下能改的是<strong>取用流程本身</strong>。</p>
+
+<h2>四、下一階段：體貼式流程</h2>
+
+<blockquote>借用 = 服務，不是手續。Kessy 從「攔截者」變「禮賓」——填單後幫你準備好、直接拿給同仁，不填就拿不到。</blockquote>
+
+<p><strong>新流程</strong></p>
+<ol>
+  <li>同事填借用單（約 30 秒）</li>
+  <li>Kessy 即時收到 Telegram 通知</li>
+  <li>Kessy 取出器材、檢查、直接拿到同仁座位 / 約定點交付</li>
+  <li>完成</li>
+</ol>
+
+<p><strong>實作方式</strong></p>
+<table>
+  <thead>
+    <tr><th>動作</th><th>負責</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Apps Script 接 Telegram bot — 新借用單即時通知 Kessy</td><td>工程</td></tr>
+    <tr><td>改文案（網頁借用成功 popup + 公告紙）：說明「填完後 Kessy 會親送」</td><td>工程 / Kessy</td></tr>
+  </tbody>
+</table>
+
+<h2>五、下一階段其他工作</h2>
+<ul>
+  <li>平台轉移：GitHub Pages → 公司 NAS（穩定性與內網速度）</li>
+  <li>試行 2 週後再 review 一次體貼式流程效果</li>
+</ul>
+
+</body>
+</html>

@@ -167,16 +167,41 @@
   };
 
   // ── Filter Engine ─────────────────────────────────
+
+  // 標準化搜尋字串：去空白、轉小寫、全形轉半形、忽略標點
+  function normalizeForSearch(s) {
+    if (!s) return '';
+    return String(s)
+      .toLowerCase()
+      // 全形數字 / 字母 → 半形
+      .replace(/[０-９Ａ-Ｚａ-ｚ]/g,
+        ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+      // 去掉所有空白、連字號、底線、斜線、括號
+      .replace(/[\s\-_\/\(\)（）]+/g, '');
+  }
+
   const FilterEngine = {
     getBaseFiltered() {
-      const q = state.searchQuery.toLowerCase();
+      // 支援多關鍵字（空白分隔，AND 條件）+ 標準化
+      const rawQuery = state.searchQuery.trim();
+      const keywords = rawQuery
+        ? rawQuery.toLowerCase().split(/\s+/).filter(Boolean)
+        : [];
+      const normalizedKeywords = keywords.map(k => normalizeForSearch(k));
+
       const loc = state.locationFilter;
       const stat = state.statusFilter;
       const onlyAvail = state.onlyAvailable;
 
       return state.rows.filter(r => {
-        const text = Object.values(r).join(' ').toLowerCase();
-        const matchQ = !q || text.includes(q);
+        const fullText = Object.values(r).join(' ').toLowerCase();
+        const normalizedText = normalizeForSearch(fullText);
+
+        // 每個關鍵字都要匹配（AND 邏輯），原文或標準化版皆可
+        const matchQ = !keywords.length || keywords.every((k, i) =>
+          fullText.includes(k) || normalizedText.includes(normalizedKeywords[i])
+        );
+
         const matchLoc = !loc || r['位置'] === loc;
         const status = (r['狀態'] || '可借用').trim() || '可借用';
         const matchStat = !stat || status === stat;
