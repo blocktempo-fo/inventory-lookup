@@ -305,11 +305,16 @@
     ['神牛Godox SL60W', 'https://www.godox.com/static/upload/image/20220617/1655454795145867.jpg'],
     // ⚠️ 移除其他補光燈：環形/方形/Neewer/VLJIM/Ulanzi 等品牌與型號不一致
 
-    // ─── 記憶卡（品牌型號明確）───
+    // ─── 記憶卡 ───
+    ['SanDisk 1TB', 'https://www.glazerscamera.com/cdn/shop/files/1031_01_Hero.png?v=1701369168'],
+    ['SanDisk 512G SDXC', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-pro-uhs-i-sd/gallery/200mbs/extreme-pro-uhs-i-sd-100mbs-32gb-front.png'],
+    ['SanDisk 128G SDXC', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-pro-uhs-i-sd/gallery/200mbs/extreme-pro-uhs-i-sd-100mbs-32gb-front.png'],
     ['SanDisk 256G microSD', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-uhs-i-microsd/extreme-uhs-i-microsd-32gb.png'],
-    // ⚠️ 移除：所有 SanDisk SDXC（原圖為 32GB，容量不符會誤導）
-    // ⚠️ 移除：SONY 64G SDXC（無法確認系列）、SanDisk 1TB
-    // ⚠️ 移除：Transcend / ADATA generic、microSD/SDXC fallback（容易誤導）
+    ['SONY 64G SDXC', 'https://retinapix.com/cdn/shop/files/SF-GSeriesUHS-IISD64GBMemoryCard.webp?v=1727764622'],
+    ['Transcend', 'https://www.thetedstore.com/cdn/shop/files/909730.jpg?v=1748295793'],
+    ['ADATA', 'https://us-shop.adata.com/cdn/shop/files/microCARD_Premier-UHS-I-CL10_A1_PD_2000x2000_128GB.jpg?v=1739491421'],
+    ['microSD', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-uhs-i-microsd/extreme-uhs-i-microsd-32gb.png'],
+    ['SDXC', 'https://www.sandisk.com/content/dam/store/en-us/assets/products/memory-cards/extreme-pro-uhs-i-sd/gallery/200mbs/extreme-pro-uhs-i-sd-100mbs-32gb-front.png'],
 
     // ─── Raymii 支架（shopline 為官方代理圖）───
     ['Raymii桌上型手機支架', 'https://shoplineimg.com/5a4d78b3080f06964f003689/60e2cfebd019860026fb1076/2000x.png'],
@@ -332,18 +337,37 @@
     ['apple 鍵盤', 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/MXK83?wid=2000&hei=2000&fmt=jpeg&qlt=90'],
     ['APPLE TV', 'https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/apple-tv-4k-hero-select-202210?wid=960&hei=600&fmt=p-jpg&qlt=95&.v=1664912661535'],
 
-    // ─── Asing A10 簡報筆 ───
+    // ─── 簡報筆 ───
     ['Asing A10', 'https://asingshop.com/cdn/shop/files/A10_1.jpg?v=1742544932'],
+    ['簡報筆', 'https://asingshop.com/cdn/shop/files/A10_1.jpg?v=1742544932'],
+    ['簡報遙控器', 'https://resource.logitech.com/w_544,h_466,ar_7:6,c_pad,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/presenters/r500s/gallery/r500s-gallery-1.png'],
 
-    // ─── 綠聯讀卡機（官方圖）───
+    // ─── 讀卡機 / 轉接 ───
     ['綠聯USB簡易讀卡機', 'https://us.ugreen.com/cdn/shop/products/ugreen-4-in-1-usb-30-sdtf-card-reader-215966_grande.png?v=1692790949'],
+    ['UGREEN', 'https://eu.ugreen.com/cdn/shop/files/ugreen-revodok-105-usb-c-hub-5-in-1-multiport-adapter-4k-hdmi-386804_grande.png?v=1731643871'],
+    ['HDMI to USBC 轉接', 'https://www.wcs-worldwide.com/cdn/shop/products/UgreenHDMI2USBC_5.jpg?v=1614943141'],
 
-    // ─── 以下全部移除（不確定型號，避免誤導）───
-    // ⚠️ INSTA 360（第三方圖、型號無法確認是 ONE / ONE X / ONE RS）
-    // ⚠️ TAKEWAY、UGREEN hub、HDMI to USBC 轉接、簡報筆 generic
-    // ⚠️ XLR音源線（套組而非單條）、金頭音源線、編織HDMI、紅頭DP
-    // ⚠️ LEXMA MS950R（圖片來源未驗證）、小米無線藍牙滑鼠 模組 2、幣安鍵盤
-    // ⚠️ DJI 三軸穩定器、3.5mm TRS、手持麥轉接套件、mavic air
+    // ─── 音源線 / 排線 ───
+    ['XLR音源線', 'https://edge.rode.com//images/products/variants/73/rode-xlr-coil-with-tag-hero-3840x2160-rgb-1080x1080-51b303e.png'],
+    ['金頭音源線', 'https://starlite.com.gh/cdn/shop/products/ugreen-3.5mm-maleto-3.5mm-male-10728-11_52a8c247-3293-4d6b-833d-4ebdfe01d165.jpg?crop=center&height=1000&v=1606175588&width=1000'],
+    ['編織HDMI', 'https://jgsuperstore.com/cdn/shop/products/A_980ecbfe-2ecc-4e49-b985-5cc186ec9812.jpg?v=1662775548'],
+    ['紅頭DP', 'https://m.media-amazon.com/images/I/71vvR7ZDUnL._AC_SL1500_.jpg'],
+
+    // ─── LEXMA 滑鼠 ───
+    ['LEXMA', 'https://img.shoplineapp.com/media/image_clips/60389a3f0402ab00208c6376/original.jpg?1614322239'],
+    ['MS950R', 'https://img.shoplineapp.com/media/image_clips/60389a3f0402ab00208c6376/original.jpg?1614322239'],
+
+    // ─── 小米滑鼠 ───
+    ['小米無線藍牙滑鼠', 'https://www.giztop.com/media/catalog/product/cache/97cc1143d2e20f2b0c8ea91aaa12053c/m/o/mouse.png'],
+
+    // ─── 以下繼續移除（型號 / 規格不確定，避免誤導）───
+    // ⚠️ DJI Action4 支架（含三腳架）— 原圖造成同事以為缺零件
+    // ⚠️ INSTA 360（無法確認是 ONE / ONE X / ONE RS）
+    // ⚠️ TAKEWAY 雲台、DJI 三軸穩定器、3.5mm TRS、mavic air
+    // ⚠️ Rode 指向性麥（型號不明）、夾式麥克風（品牌不明）、Wireless PRO、VideoMicro
+    // ⚠️ ZOOM H7（原圖為 H6）、手持麥轉接套件
+    // ⚠️ 補光燈：環形/方形/Neewer/VLJIM/攝力派 等品牌與圖不一致
+    // ⚠️ 兔籠、Cayer/JIE yang 三腳架、各種燈架、看板展示架、輪座
   ];
 
   // ── Image Resolver ────────────────────────────────
