@@ -280,6 +280,14 @@
     ['DJI Action 4', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/e1b8110f65a5a3321fe487f0a1a061ac@large.png'],
     // ⚠️ DJI Action4 支架（含三腳架）→ 移除，原圖誤導同事以為缺零件
 
+    // ─── DJI Mavic Air（DJI 官方店圖，已驗證為 2018 一代）───
+    ['mavic air 空拍機 遙控器', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/1dda79da942cd54b4bc122d57becc968@large.png'],
+    ['mavic air 空拍機 電池', 'https://se-cdn.djiits.com/tpc/uploads/spu/cover/fe77fece-594e-4e27-b61d-b6228a3c1815@large.png'],
+    ['mavic air', 'https://se-cdn.djiits.com/tpc/uploads/sku/cover/beceb8fe-c7d6-41c9-9d36-e6b608c7f059@ultra.png'],
+
+    // ─── RODE 手持麥轉接套件（RODE Wireless GO Handle，官方圖）───
+    ['手持麥轉接套件', 'https://edge.rode.com/images/products/variants/358/RODE_Wireless_GO_HANDLE_WITH_POPSHIELD_FRONT_RGB-2000x2000-724898e.png'],
+
     // ─── Sony a6400 系列（Adorama 官方產品圖）───
     ['a6400 微單相機 電池', 'https://www.adorama.com/images/product/isonpfw50.jpg'],     // NP-FW50 電池
     ['模擬電池', 'https://www.adorama.com/images/product/isonpfw50.jpg'],
